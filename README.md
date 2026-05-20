@@ -59,3 +59,14 @@ Simple scoreboard prototype for a host computer (Windows 11 PC or Raspberry Pi 5
 - Set tablet browser to kiosk mode and open `/controller`.
 - Keep host and tablet on the same Wi-Fi network.
 - If needed, allow incoming firewall traffic on the selected app port.
+
+HOW to RUN thIS
+
+npm run dev
+
+Then in a browser...enter thos adress  http://localhost:5173/
+Then open the http://localhost:5173/display
+Then open this:  http://localhost:5173/controller
+
+
+[1]   ➜  Network: http://192.168.200.97:5173/
