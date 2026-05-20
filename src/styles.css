@@ -1,0 +1,373 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background-color: #11151c;
+  color: #f8f9fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #11151c;
+}
+
+a {
+  color: #84c5ff;
+}
+
+.status-ok {
+  color: #56d364;
+}
+
+.status-bad {
+  color: #ff6b6b;
+}
+
+.landing {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.tv-display-page {
+  min-height: 100vh;
+  padding: 1.4rem 2rem;
+  position: relative;
+}
+
+.tv-score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4rem;
+  align-items: start;
+}
+
+.tv-team-block {
+  max-width: 560px;
+  justify-self: center;
+}
+
+.tv-team-block h2 {
+  margin: 0 0 0.6rem;
+  text-decoration: underline;
+  font-size: clamp(1.7rem, 2.4vw, 3rem);
+  font-weight: 500;
+}
+
+.tv-team-home h2 {
+  color: #4e7de5;
+}
+
+.tv-team-other h2 {
+  color: #f1737c;
+}
+
+.tv-team-block p {
+  margin: 0;
+  padding: 0.35rem 1.4rem;
+  text-align: center;
+  font-size: clamp(8rem, 19vw, 18rem);
+  line-height: 1;
+  font-weight: 700;
+  color: #f8f9fb;
+}
+
+.tv-team-home p {
+  background: #4e7de5;
+}
+
+.tv-team-other p {
+  background: #f1737c;
+}
+
+.tv-clock-wrap {
+  margin: 1.2rem auto 0;
+  width: min(52vw, 980px);
+}
+
+.tv-clock-wrap p {
+  margin: 0;
+  text-align: center;
+  background: #dd79f1;
+  color: #f8f9fb;
+  font-size: clamp(6rem, 16vw, 14rem);
+  line-height: 1;
+  padding: 0.45rem 1rem 0.55rem;
+  letter-spacing: 0.04em;
+}
+
+.tv-connection {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 0.9rem;
+  font-size: 1.9rem;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8f9fb;
+  background: #2f5ea7;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.tablet-controller-page {
+  min-height: 100vh;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.tablet-top-row {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tablet-top-row h1 {
+  justify-self: center;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.text-link {
+  border: 0;
+  background: transparent;
+  color: #84c5ff;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 1.3rem;
+}
+
+.future-link {
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+.connection-status {
+  justify-self: end;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.tablet-main-grid {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.team-panel {
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.team-panel-top {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.team-stepper {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.team-stepper-button {
+  min-height: 62px;
+  font-size: 2.1rem;
+  border-radius: 12px;
+}
+
+.team-score-card {
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  text-align: center;
+}
+
+.team-score-card h2 {
+  margin: 0;
+  text-align: left;
+  font-weight: 500;
+  font-size: 1.8rem;
+}
+
+.team-score-card p {
+  margin: 0.2rem 0 0;
+  font-size: clamp(5rem, 10vw, 8rem);
+  line-height: 1;
+}
+
+.team-timeout-card {
+  margin-top: 0.65rem;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem 0.85rem;
+}
+
+.team-timeout-card h3 {
+  margin: 0 0 0.45rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.team-timeout-buttons {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.team-timeout-buttons button {
+  border-radius: 12px;
+  font-size: 2.1rem;
+  min-height: 64px;
+}
+
+.my-team-panel {
+  background: #3f79e6;
+}
+
+.my-team-panel .team-stepper-button,
+.my-team-panel .team-timeout-buttons button {
+  background: #3f79e6;
+  border: 2px solid #2d4d85;
+}
+
+.my-team-panel .team-score-card,
+.my-team-panel .team-timeout-card {
+  background: #3f79e6;
+  border: 2px solid #2d4d85;
+}
+
+.other-team-panel {
+  background: #f07078;
+}
+
+.other-team-panel .team-stepper-button,
+.other-team-panel .team-timeout-buttons button {
+  background: #f07078;
+  border: 2px solid #814956;
+}
+
+.other-team-panel .team-score-card,
+.other-team-panel .team-timeout-card {
+  background: #f07078;
+  border: 2px solid #814956;
+}
+
+.clock-panel {
+  background: #dd79f1;
+  border-radius: 8px;
+  padding: 0.65rem;
+}
+
+.clock-readout {
+  margin: 0;
+  border: 2px solid #9657a7;
+  border-radius: 4px;
+  text-align: center;
+  font-size: clamp(4rem, 8vw, 7rem);
+  line-height: 1.1;
+  padding: 0.2rem 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+.clock-controls-grid {
+  margin-top: 0.65rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 0.75rem;
+}
+
+.clock-set-column {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.clock-set-column button,
+.clock-set-column select,
+.clock-run-column button {
+  background: #dd79f1;
+  border: 2px solid #9657a7;
+  color: #f8f9fb;
+  border-radius: 12px;
+  font-size: 2.15rem;
+  min-height: 64px;
+}
+
+.clock-set-label {
+  cursor: default;
+}
+
+.clock-set-column select {
+  padding: 0 0.85rem;
+}
+
+.clock-run-column {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.future-notes {
+  margin-top: 2.5rem;
+  margin-left: min(64%, 900px);
+  display: grid;
+  gap: 2rem;
+  font-size: 2.1rem;
+  color: #0d0d0d;
+}
+
+.future-notes p {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .tv-score-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tv-team-block {
+    max-width: none;
+    width: 100%;
+  }
+
+  .tablet-top-row {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .tablet-top-row h1,
+  .connection-status {
+    justify-self: start;
+  }
+
+  .tablet-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .future-notes {
+    margin-left: 0;
+    font-size: 1.4rem;
+    gap: 1rem;
+  }
+
+  .tv-clock-wrap {
+    width: 100%;
+  }
+
+  .tv-connection {
+    position: static;
+    display: block;
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+}
