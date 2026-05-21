@@ -7,6 +7,8 @@ import { Server } from "socket.io";
 type ScoreboardState = {
   homeScore: number;
   visitorScore: number;
+  homeTeamName: string;
+  visitorTeamName: string;
   clockSecondsRemaining: number;
   clockRunning: boolean;
   updatedAt: string;
@@ -25,6 +27,8 @@ const io = new Server(httpServer, {
 const state: ScoreboardState = {
   homeScore: 0,
   visitorScore: 0,
+  homeTeamName: "My team name",
+  visitorTeamName: "Other team name",
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
@@ -44,6 +48,18 @@ const setScore = (team: "home" | "visitor", score: number) => {
   } else {
     state.visitorScore = next;
   }
+  emitState();
+};
+
+const sanitizeTeamName = (value: unknown, fallback: string) => {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim().slice(0, 35);
+  return trimmed.length > 0 ? trimmed : fallback;
+};
+
+const setTeamNames = (homeTeamName: unknown, visitorTeamName: unknown) => {
+  state.homeTeamName = sanitizeTeamName(homeTeamName, state.homeTeamName);
+  state.visitorTeamName = sanitizeTeamName(visitorTeamName, state.visitorTeamName);
   emitState();
 };
 
@@ -136,6 +152,13 @@ io.on("connection", (socket) => {
     setClock(seconds);
     startClock();
   });
+
+  socket.on(
+    "controller:setTeamNames",
+    (payload: { homeTeamName?: string; visitorTeamName?: string } = {}) => {
+      setTeamNames(payload.homeTeamName, payload.visitorTeamName);
+    }
+  );
 });
 
 app.get("/api/state", (_req, res) => {

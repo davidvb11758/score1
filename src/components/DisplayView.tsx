@@ -225,10 +225,10 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
           <img className="tv-background-image" src={layout.backgroundImage} alt="" />
           <section className="tv-overlay-layer">
             <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneName)}>
-              My team name
+              {state.homeTeamName}
             </p>
             <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoName)}>
-              Other team name
+              {state.visitorTeamName}
             </p>
             <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.teamOneScore)}>
               {state.homeScore}

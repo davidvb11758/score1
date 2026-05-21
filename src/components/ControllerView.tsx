@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { ScoreboardState, TeamSide } from "../types";
 
 type ControllerViewProps = {
@@ -8,6 +9,7 @@ type ControllerViewProps = {
   onStopClock: () => void;
   onSetClock: (seconds: number) => void;
   onSetTimeoutAndStart: (seconds: number) => void;
+  onSetTeamNames: (homeTeamName: string, visitorTeamName: string) => void;
 };
 
 const CLOCK_MINUTE_CHOICES = [1, 2, 3, 4, 6, 8, 10];
@@ -69,23 +71,51 @@ export function ControllerView({
   onStartClock,
   onStopClock,
   onSetClock,
-  onSetTimeoutAndStart
+  onSetTimeoutAndStart,
+  onSetTeamNames
 }: ControllerViewProps) {
   const selectedMinutes = CLOCK_MINUTE_CHOICES.includes(state.clockSecondsRemaining / 60)
     ? state.clockSecondsRemaining / 60
     : 3;
+  const [isConfigureModalOpen, setConfigureModalOpen] = useState(false);
+  const [homeTeamNameInput, setHomeTeamNameInput] = useState(state.homeTeamName);
+  const [visitorTeamNameInput, setVisitorTeamNameInput] = useState(state.visitorTeamName);
+
+  useEffect(() => {
+    if (isConfigureModalOpen) return;
+    setHomeTeamNameInput(state.homeTeamName);
+    setVisitorTeamNameInput(state.visitorTeamName);
+  }, [isConfigureModalOpen, state.homeTeamName, state.visitorTeamName]);
+
+  const openConfigureModal = () => {
+    setHomeTeamNameInput(state.homeTeamName);
+    setVisitorTeamNameInput(state.visitorTeamName);
+    setConfigureModalOpen(true);
+  };
+
+  const closeConfigureModal = () => {
+    setConfigureModalOpen(false);
+  };
+
+  const saveTeamNames = () => {
+    onSetTeamNames(homeTeamNameInput.trim(), visitorTeamNameInput.trim());
+    setConfigureModalOpen(false);
+  };
 
   return (
     <main className="tablet-controller-page">
       <header className="tablet-top-row">
         <button className="text-link future-link" type="button" disabled>
-          My team name
+          {state.homeTeamName}
         </button>
         <button className="text-link future-link" type="button" disabled>
           SWAP
         </button>
         <button className="text-link future-link" type="button" disabled>
-          Other team name
+          {state.visitorTeamName}
+        </button>
+        <button className="text-link configure-link" type="button" onClick={openConfigureModal}>
+          Configure team names
         </button>
         <h1>Clock</h1>
         <span className={connected ? "status-ok connection-status" : "status-bad connection-status"}>
@@ -95,7 +125,7 @@ export function ControllerView({
 
       <section className="tablet-main-grid">
         <TeamControls
-          title="My Team"
+          title={state.homeTeamName}
           accentClassName="my-team-panel"
           score={state.homeScore}
           side="home"
@@ -103,7 +133,7 @@ export function ControllerView({
           onTimeoutPress={onSetTimeoutAndStart}
         />
         <TeamControls
-          title="Other Team"
+          title={state.visitorTeamName}
           accentClassName="other-team-panel"
           score={state.visitorScore}
           side="visitor"
@@ -137,9 +167,47 @@ export function ControllerView({
 
       <section className="future-notes">
         <p>Reset to new game (future feature)</p>
-        <p>Configure team A (future feature)</p>
-        <p>Configure team B (future feature)</p>
+        <p>Swap teams (future feature)</p>
+        <p>Sport presets (future feature)</p>
       </section>
+
+      {isConfigureModalOpen ? (
+        <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Configure team names">
+          <div className="modal-card">
+            <h2>Configure team names</h2>
+            <label className="modal-label">
+              Team 1 name
+              <input
+                value={homeTeamNameInput}
+                onChange={(event) => setHomeTeamNameInput(event.target.value.slice(0, 35))}
+                maxLength={35}
+                placeholder="My team name"
+              />
+            </label>
+            <p className="modal-counter">{homeTeamNameInput.length}/35</p>
+
+            <label className="modal-label">
+              Team 2 name
+              <input
+                value={visitorTeamNameInput}
+                onChange={(event) => setVisitorTeamNameInput(event.target.value.slice(0, 35))}
+                maxLength={35}
+                placeholder="Other team name"
+              />
+            </label>
+            <p className="modal-counter">{visitorTeamNameInput.length}/35</p>
+
+            <div className="modal-actions">
+              <button type="button" className="modal-secondary" onClick={closeConfigureModal}>
+                Cancel
+              </button>
+              <button type="button" onClick={saveTeamNames}>
+                Save
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

@@ -7,6 +7,8 @@ import { ControllerView } from "./components/ControllerView";
 const initialState: ScoreboardState = {
   homeScore: 0,
   visitorScore: 0,
+  homeTeamName: "My team name",
+  visitorTeamName: "Other team name",
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
@@ -42,6 +44,9 @@ export function App() {
   const stopClock = () => socket.emit("controller:stopClock");
   const setClock = (seconds: number) => socket.emit("controller:setClock", seconds);
   const setTimeoutAndStart = (seconds: number) => socket.emit("controller:setClockAndStart", seconds);
+  const setTeamNames = (homeTeamName: string, visitorTeamName: string) => {
+    socket.emit("controller:setTeamNames", { homeTeamName, visitorTeamName });
+  };
 
   if (pathname === "/display") {
     return <DisplayView state={state} connected={connected} />;
@@ -57,6 +62,7 @@ export function App() {
         onStopClock={stopClock}
         onSetClock={setClock}
         onSetTimeoutAndStart={setTimeoutAndStart}
+        onSetTeamNames={setTeamNames}
       />
     );
   }
