@@ -32,6 +32,19 @@ export function App() {
     const handleDisconnect = () => setConnected(false);
     const handleStateUpdate = (nextState: ScoreboardState) => setState(nextState);
 
+    fetch("/api/state")
+      .then((response) => {
+        if (!response.ok) return null;
+        return response.json() as Promise<ScoreboardState>;
+      })
+      .then((nextState) => {
+        if (!nextState) return;
+        setState(nextState);
+      })
+      .catch(() => {
+        // Socket state:update still hydrates state if API fetch fails.
+      });
+
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("state:update", handleStateUpdate);
