@@ -10,7 +10,7 @@ const initialState: ScoreboardState = {
   homeTeamName: "Team 1",
   visitorTeamName: "Team 2",
   maxTimeoutsPerTeam: 2,
-  timeoutDurationSeconds: 60,
+  timeoutDurationSeconds: 30,
   maxSetsWon: 2,
   setNumber: 1,
   homeTimeoutsTaken: 0,

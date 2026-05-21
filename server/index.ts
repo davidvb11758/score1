@@ -46,7 +46,7 @@ const state: ScoreboardState = {
   homeTeamName: DEFAULT_HOME_TEAM_NAME,
   visitorTeamName: DEFAULT_VISITOR_TEAM_NAME,
   maxTimeoutsPerTeam: 2,
-  timeoutDurationSeconds: 60,
+  timeoutDurationSeconds: 30,
   maxSetsWon: 2,
   setNumber: 1,
   homeTimeoutsTaken: 0,
