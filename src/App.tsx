@@ -7,8 +7,8 @@ import { ControllerView } from "./components/ControllerView";
 const initialState: ScoreboardState = {
   homeScore: 0,
   visitorScore: 0,
-  homeTeamName: "My team name",
-  visitorTeamName: "Other team name",
+  homeTeamName: "Team 1",
+  visitorTeamName: "Team 2",
   maxTimeoutsPerTeam: 2,
   timeoutDurationSeconds: 60,
   maxSetsWon: 2,
@@ -68,6 +68,8 @@ export function App() {
   const awardSet = (side: TeamSide) => {
     socket.emit(side === "home" ? "controller:awardHomeSet" : "controller:awardVisitorSet");
   };
+  const startNewSet = () => socket.emit("controller:startNewSet");
+  const startNewMatch = () => socket.emit("controller:startNewMatch");
   const setCurrentSetValues = (payload: {
     homeTeamName: string;
     visitorTeamName: string;
@@ -98,6 +100,8 @@ export function App() {
         onSetMatchConfiguration={setMatchConfiguration}
         onTakeTimeout={takeTimeout}
         onAwardSet={awardSet}
+        onStartNewSet={startNewSet}
+        onStartNewMatch={startNewMatch}
         onSetCurrentSetValues={setCurrentSetValues}
       />
     );

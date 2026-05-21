@@ -444,6 +444,8 @@ button:active {
 
 .modal-card-wide {
   width: min(760px, 95vw);
+  max-height: 84vh;
+  overflow-y: auto;
 }
 
 .team-edit-group {
@@ -455,6 +457,18 @@ button:active {
 .team-edit-group h3 {
   margin: 0 0 0.45rem;
   font-size: 1.15rem;
+}
+
+.modal-label-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modal-label-inline input,
+.modal-label-inline select {
+  width: min(300px, 60%);
 }
 
 .home-edit-group {
@@ -495,5 +509,15 @@ button:active {
     margin-left: 0;
     font-size: 1.4rem;
     gap: 1rem;
+  }
+
+  .modal-label-inline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .modal-label-inline input,
+  .modal-label-inline select {
+    width: 100%;
   }
 }

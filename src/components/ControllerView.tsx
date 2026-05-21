@@ -15,6 +15,8 @@ type ControllerViewProps = {
   ) => void;
   onTakeTimeout: (side: TeamSide) => void;
   onAwardSet: (side: TeamSide) => void;
+  onStartNewSet: () => void;
+  onStartNewMatch: () => void;
   onSetCurrentSetValues: (payload: {
     homeTeamName: string;
     visitorTeamName: string;
@@ -30,6 +32,8 @@ type ControllerViewProps = {
 
 const CLOCK_MINUTE_CHOICES = [1, 2, 3, 4, 6, 8, 10];
 const VOLLEYBALL_TIMEOUT_DURATION_CHOICES = [30, 45, 60, 75, 90];
+const VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES = [1, 2];
+const MAX_SETS_WON_CHOICES = [1, 2, 3, 4, 5];
 const MAX_TEAM_NAME_LENGTH = 25;
 const MAX_SCORE = 99;
 
@@ -98,7 +102,7 @@ function TeamControls(props: {
         </div>
         <div className="team-action-row">
           <button className="team-outline-button" disabled={isSetsWonLimitReached} onClick={() => onAwardSet(side)}>
-            Sets Won+1
+            Sets Won +1
           </button>
           <span className="team-tracking-value">{setsWon > 0 ? setsWon : ""}</span>
         </div>
@@ -120,6 +124,8 @@ export function ControllerView({
   onSetMatchConfiguration,
   onTakeTimeout,
   onAwardSet,
+  onStartNewSet,
+  onStartNewMatch,
   onSetCurrentSetValues
 }: ControllerViewProps) {
   const selectedMinutes = CLOCK_MINUTE_CHOICES.includes(state.clockSecondsRemaining / 60)
@@ -143,7 +149,11 @@ export function ControllerView({
 
   useEffect(() => {
     if (isMatchConfigModalOpen || isEditValuesModalOpen) return;
-    setMaxTimeoutsInput(String(state.maxTimeoutsPerTeam));
+    setMaxTimeoutsInput(
+      VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES.includes(state.maxTimeoutsPerTeam)
+        ? String(state.maxTimeoutsPerTeam)
+        : String(VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES[0])
+    );
     setTimeoutDurationInput(String(state.timeoutDurationSeconds));
     setMaxSetsWonInput(String(state.maxSetsWon));
     setEditHomeTeamName(state.homeTeamName);
@@ -173,13 +183,21 @@ export function ControllerView({
   ]);
 
   const openMatchConfigModal = () => {
-    setMaxTimeoutsInput(String(state.maxTimeoutsPerTeam));
+    setMaxTimeoutsInput(
+      VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES.includes(state.maxTimeoutsPerTeam)
+        ? String(state.maxTimeoutsPerTeam)
+        : String(VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES[0])
+    );
     setTimeoutDurationInput(
       VOLLEYBALL_TIMEOUT_DURATION_CHOICES.includes(state.timeoutDurationSeconds)
         ? String(state.timeoutDurationSeconds)
         : String(VOLLEYBALL_TIMEOUT_DURATION_CHOICES[0])
     );
-    setMaxSetsWonInput(String(state.maxSetsWon));
+    setMaxSetsWonInput(
+      MAX_SETS_WON_CHOICES.includes(state.maxSetsWon)
+        ? String(state.maxSetsWon)
+        : String(MAX_SETS_WON_CHOICES[0])
+    );
     setMatchConfigModalOpen(true);
   };
 
@@ -191,9 +209,9 @@ export function ControllerView({
     const maxTimeouts = Number.parseInt(maxTimeoutsInput, 10);
     const timeoutDuration = Number.parseInt(timeoutDurationInput, 10);
     const maxSetsWon = Number.parseInt(maxSetsWonInput, 10);
-    if (!Number.isInteger(maxTimeouts) || maxTimeouts <= 0) return;
+    if (!VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES.includes(maxTimeouts)) return;
     if (!Number.isInteger(timeoutDuration) || timeoutDuration <= 0) return;
-    if (!Number.isInteger(maxSetsWon) || maxSetsWon <= 0) return;
+    if (!MAX_SETS_WON_CHOICES.includes(maxSetsWon)) return;
 
     onSetMatchConfiguration(maxTimeouts, timeoutDuration, maxSetsWon);
     setMatchConfigModalOpen(false);
@@ -330,6 +348,12 @@ export function ControllerView({
         <button className="controller-secondary-button" type="button" onClick={() => setIsSwapped((prev) => !prev)}>
           Swap teams right and left
         </button>
+        <button className="controller-secondary-button" type="button" onClick={onStartNewSet}>
+          Start a new set
+        </button>
+        <button className="controller-secondary-button" type="button" onClick={onStartNewMatch}>
+          Start a new match
+        </button>
         <button className="controller-secondary-button" type="button" onClick={openMatchConfigModal}>
           Match Configuration
         </button>
@@ -347,14 +371,16 @@ export function ControllerView({
             <h2>Match Configuration</h2>
             <label className="modal-label">
               Max number of timeouts per team
-              <input
-                type="number"
-                min={1}
-                step={1}
+              <select
                 value={maxTimeoutsInput}
                 onChange={(event) => setMaxTimeoutsInput(event.target.value)}
-                placeholder="2"
-              />
+              >
+                {VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES.map((timeouts) => (
+                  <option key={timeouts} value={timeouts}>
+                    {timeouts}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="modal-label">
               Timeout duration (seconds)
@@ -371,14 +397,16 @@ export function ControllerView({
             </label>
             <label className="modal-label">
               Max sets won
-              <input
-                type="number"
-                min={1}
-                step={1}
+              <select
                 value={maxSetsWonInput}
                 onChange={(event) => setMaxSetsWonInput(event.target.value)}
-                placeholder="2"
-              />
+              >
+                {MAX_SETS_WON_CHOICES.map((sets) => (
+                  <option key={sets} value={sets}>
+                    {sets}
+                  </option>
+                ))}
+              </select>
             </label>
             <div className="modal-actions">
               <button type="button" className="modal-secondary" onClick={closeMatchConfigModal}>
@@ -398,7 +426,7 @@ export function ControllerView({
             <h2>Edit scoreboard values</h2>
             <section className="team-edit-group match-settings-group">
               <h3>Match settings</h3>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Set #
                 <select value={editSetNumber} onChange={(event) => setEditSetNumber(event.target.value)}>
                   {[1, 2, 3, 4, 5].map((setNumber) => (
@@ -411,7 +439,7 @@ export function ControllerView({
             </section>
             <section className="team-edit-group home-edit-group">
               <h3>Home team (blue section)</h3>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Team name:
                 <input
                   value={editHomeTeamName}
@@ -419,7 +447,7 @@ export function ControllerView({
                   maxLength={MAX_TEAM_NAME_LENGTH}
                 />
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Score:
                 <select value={editHomeScore} onChange={(event) => setEditHomeScore(event.target.value)}>
                   {Array.from({ length: MAX_SCORE + 1 }, (_, score) => (
@@ -429,7 +457,7 @@ export function ControllerView({
                   ))}
                 </select>
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Timeouts taken:
                 <select
                   value={editHomeTimeoutsTaken}
@@ -442,7 +470,7 @@ export function ControllerView({
                   ))}
                 </select>
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Sets won:
                 <select value={editHomeSetsWon} onChange={(event) => setEditHomeSetsWon(event.target.value)}>
                   {Array.from({ length: state.maxSetsWon + 1 }, (_, count) => (
@@ -456,7 +484,7 @@ export function ControllerView({
 
             <section className="team-edit-group visitor-edit-group">
               <h3>Visitor team (red section)</h3>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Team name:
                 <input
                   value={editVisitorTeamName}
@@ -464,7 +492,7 @@ export function ControllerView({
                   maxLength={MAX_TEAM_NAME_LENGTH}
                 />
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Score:
                 <select value={editVisitorScore} onChange={(event) => setEditVisitorScore(event.target.value)}>
                   {Array.from({ length: MAX_SCORE + 1 }, (_, score) => (
@@ -474,7 +502,7 @@ export function ControllerView({
                   ))}
                 </select>
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Timeouts taken:
                 <select
                   value={editVisitorTimeoutsTaken}
@@ -487,7 +515,7 @@ export function ControllerView({
                   ))}
                 </select>
               </label>
-              <label className="modal-label">
+              <label className="modal-label modal-label-inline">
                 Sets won:
                 <select value={editVisitorSetsWon} onChange={(event) => setEditVisitorSetsWon(event.target.value)}>
                   {Array.from({ length: state.maxSetsWon + 1 }, (_, count) => (

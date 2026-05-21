@@ -28,7 +28,10 @@ const MAX_TEAM_NAME_LENGTH = 25;
 const MAX_SCORE = 99;
 const MIN_SET_NUMBER = 1;
 const MAX_SET_NUMBER = 5;
+const MAX_VOLLEYBALL_TIMEOUTS_PER_TEAM = 2;
 const VOLLEYBALL_TIMEOUT_DURATION_CHOICES = [30, 45, 60, 75, 90] as const;
+const DEFAULT_HOME_TEAM_NAME = "Team 1";
+const DEFAULT_VISITOR_TEAM_NAME = "Team 2";
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -40,8 +43,8 @@ const io = new Server(httpServer, {
 const state: ScoreboardState = {
   homeScore: 0,
   visitorScore: 0,
-  homeTeamName: "My team name",
-  visitorTeamName: "Other team name",
+  homeTeamName: DEFAULT_HOME_TEAM_NAME,
+  visitorTeamName: DEFAULT_VISITOR_TEAM_NAME,
   maxTimeoutsPerTeam: 2,
   timeoutDurationSeconds: 60,
   maxSetsWon: 2,
@@ -130,9 +133,14 @@ const setMatchConfiguration = (
   timeoutDurationSeconds: unknown,
   maxSetsWon: unknown
 ) => {
-  state.maxTimeoutsPerTeam = sanitizePositiveInteger(maxTimeoutsPerTeam, state.maxTimeoutsPerTeam);
+  state.maxTimeoutsPerTeam = sanitizeRangeInteger(
+    maxTimeoutsPerTeam,
+    1,
+    MAX_VOLLEYBALL_TIMEOUTS_PER_TEAM,
+    state.maxTimeoutsPerTeam
+  );
   state.timeoutDurationSeconds = sanitizeTimeoutDuration(timeoutDurationSeconds, state.timeoutDurationSeconds);
-  state.maxSetsWon = sanitizePositiveInteger(maxSetsWon, state.maxSetsWon);
+  state.maxSetsWon = sanitizeRangeInteger(maxSetsWon, MIN_SET_NUMBER, MAX_SET_NUMBER, state.maxSetsWon);
 
   state.homeTimeoutsTaken = Math.min(state.homeTimeoutsTaken, state.maxTimeoutsPerTeam);
   state.visitorTimeoutsTaken = Math.min(state.visitorTimeoutsTaken, state.maxTimeoutsPerTeam);
@@ -239,6 +247,27 @@ const setCurrentSetValues = (payload: {
   emitState();
 };
 
+const startNewSet = () => {
+  state.homeScore = 0;
+  state.visitorScore = 0;
+  state.homeTimeoutsTaken = 0;
+  state.visitorTimeoutsTaken = 0;
+  emitState();
+};
+
+const startNewMatch = () => {
+  state.setNumber = MIN_SET_NUMBER;
+  state.homeTeamName = DEFAULT_HOME_TEAM_NAME;
+  state.visitorTeamName = DEFAULT_VISITOR_TEAM_NAME;
+  state.homeScore = 0;
+  state.visitorScore = 0;
+  state.homeTimeoutsTaken = 0;
+  state.visitorTimeoutsTaken = 0;
+  state.homeSetsWon = 0;
+  state.visitorSetsWon = 0;
+  emitState();
+};
+
 io.on("connection", (socket) => {
   socket.emit("state:update", state);
 
@@ -296,6 +325,14 @@ io.on("connection", (socket) => {
 
   socket.on("controller:awardVisitorSet", () => {
     awardSet("visitor");
+  });
+
+  socket.on("controller:startNewSet", () => {
+    startNewSet();
+  });
+
+  socket.on("controller:startNewMatch", () => {
+    startNewMatch();
   });
 
   socket.on(
