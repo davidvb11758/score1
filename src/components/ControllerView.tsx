@@ -133,6 +133,7 @@ export function ControllerView({
     : 3;
   const [isMatchConfigModalOpen, setMatchConfigModalOpen] = useState(false);
   const [isEditValuesModalOpen, setEditValuesModalOpen] = useState(false);
+  const [isNewMatchConfirmOpen, setNewMatchConfirmOpen] = useState(false);
   const [maxTimeoutsInput, setMaxTimeoutsInput] = useState(String(state.maxTimeoutsPerTeam));
   const [timeoutDurationInput, setTimeoutDurationInput] = useState(String(state.timeoutDurationSeconds));
   const [maxSetsWonInput, setMaxSetsWonInput] = useState(String(state.maxSetsWon));
@@ -232,6 +233,19 @@ export function ControllerView({
 
   const closeEditValuesModal = () => {
     setEditValuesModalOpen(false);
+  };
+
+  const openNewMatchConfirm = () => {
+    setNewMatchConfirmOpen(true);
+  };
+
+  const closeNewMatchConfirm = () => {
+    setNewMatchConfirmOpen(false);
+  };
+
+  const confirmNewMatch = () => {
+    onStartNewMatch();
+    setNewMatchConfirmOpen(false);
   };
 
   const saveEditValues = () => {
@@ -351,7 +365,7 @@ export function ControllerView({
         <button className="controller-secondary-button" type="button" onClick={onStartNewSet}>
           Start a new set
         </button>
-        <button className="controller-secondary-button" type="button" onClick={onStartNewMatch}>
+        <button className="controller-secondary-button" type="button" onClick={openNewMatchConfirm}>
           Start a new match
         </button>
         <button className="controller-secondary-button" type="button" onClick={openMatchConfigModal}>
@@ -533,6 +547,22 @@ export function ControllerView({
               </button>
               <button type="button" onClick={saveEditValues}>
                 Update
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      {isNewMatchConfirmOpen ? (
+        <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Confirm new match">
+          <div className="modal-card">
+            <h2>Confirm new match</h2>
+            <p>Are you sure you want to start a new MATCH? Doing so will reset ALL values on the scoreboard.</p>
+            <div className="modal-actions">
+              <button type="button" className="modal-secondary" onClick={closeNewMatchConfirm}>
+                Cancel
+              </button>
+              <button type="button" onClick={confirmNewMatch}>
+                Yes - new match
               </button>
             </div>
           </div>
