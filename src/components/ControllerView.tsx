@@ -8,7 +8,6 @@ type ControllerViewProps = {
   onStartClock: () => void;
   onStopClock: () => void;
   onSetClock: (seconds: number) => void;
-  onSetTeamNames: (homeTeamName: string, visitorTeamName: string) => void;
   onSetMatchConfiguration: (
     maxTimeoutsPerTeam: number,
     timeoutDurationSeconds: number,
@@ -16,10 +15,23 @@ type ControllerViewProps = {
   ) => void;
   onTakeTimeout: (side: TeamSide) => void;
   onAwardSet: (side: TeamSide) => void;
+  onSetCurrentSetValues: (payload: {
+    homeTeamName: string;
+    visitorTeamName: string;
+    setNumber: number;
+    homeScore: number;
+    visitorScore: number;
+    homeTimeoutsTaken: number;
+    visitorTimeoutsTaken: number;
+    homeSetsWon: number;
+    visitorSetsWon: number;
+  }) => void;
 };
 
 const CLOCK_MINUTE_CHOICES = [1, 2, 3, 4, 6, 8, 10];
+const VOLLEYBALL_TIMEOUT_DURATION_CHOICES = [30, 45, 60, 75, 90];
 const MAX_TEAM_NAME_LENGTH = 25;
+const MAX_SCORE = 99;
 
 function formatClock(totalSeconds: number) {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
@@ -105,58 +117,68 @@ export function ControllerView({
   onStartClock,
   onStopClock,
   onSetClock,
-  onSetTeamNames,
   onSetMatchConfiguration,
   onTakeTimeout,
-  onAwardSet
+  onAwardSet,
+  onSetCurrentSetValues
 }: ControllerViewProps) {
   const selectedMinutes = CLOCK_MINUTE_CHOICES.includes(state.clockSecondsRemaining / 60)
     ? state.clockSecondsRemaining / 60
     : 3;
-  const [isTeamNamesModalOpen, setTeamNamesModalOpen] = useState(false);
   const [isMatchConfigModalOpen, setMatchConfigModalOpen] = useState(false);
-  const [homeTeamNameInput, setHomeTeamNameInput] = useState(state.homeTeamName);
-  const [visitorTeamNameInput, setVisitorTeamNameInput] = useState(state.visitorTeamName);
+  const [isEditValuesModalOpen, setEditValuesModalOpen] = useState(false);
   const [maxTimeoutsInput, setMaxTimeoutsInput] = useState(String(state.maxTimeoutsPerTeam));
   const [timeoutDurationInput, setTimeoutDurationInput] = useState(String(state.timeoutDurationSeconds));
   const [maxSetsWonInput, setMaxSetsWonInput] = useState(String(state.maxSetsWon));
+  const [editHomeTeamName, setEditHomeTeamName] = useState(state.homeTeamName);
+  const [editVisitorTeamName, setEditVisitorTeamName] = useState(state.visitorTeamName);
+  const [editSetNumber, setEditSetNumber] = useState(String(state.setNumber));
+  const [editHomeScore, setEditHomeScore] = useState(String(state.homeScore));
+  const [editVisitorScore, setEditVisitorScore] = useState(String(state.visitorScore));
+  const [editHomeTimeoutsTaken, setEditHomeTimeoutsTaken] = useState(String(state.homeTimeoutsTaken));
+  const [editVisitorTimeoutsTaken, setEditVisitorTimeoutsTaken] = useState(String(state.visitorTimeoutsTaken));
+  const [editHomeSetsWon, setEditHomeSetsWon] = useState(String(state.homeSetsWon));
+  const [editVisitorSetsWon, setEditVisitorSetsWon] = useState(String(state.visitorSetsWon));
   const [isSwapped, setIsSwapped] = useState(false);
 
   useEffect(() => {
-    if (isTeamNamesModalOpen || isMatchConfigModalOpen) return;
-    setHomeTeamNameInput(state.homeTeamName);
-    setVisitorTeamNameInput(state.visitorTeamName);
+    if (isMatchConfigModalOpen || isEditValuesModalOpen) return;
     setMaxTimeoutsInput(String(state.maxTimeoutsPerTeam));
     setTimeoutDurationInput(String(state.timeoutDurationSeconds));
     setMaxSetsWonInput(String(state.maxSetsWon));
+    setEditHomeTeamName(state.homeTeamName);
+    setEditVisitorTeamName(state.visitorTeamName);
+    setEditSetNumber(String(state.setNumber));
+    setEditHomeScore(String(state.homeScore));
+    setEditVisitorScore(String(state.visitorScore));
+    setEditHomeTimeoutsTaken(String(state.homeTimeoutsTaken));
+    setEditVisitorTimeoutsTaken(String(state.visitorTimeoutsTaken));
+    setEditHomeSetsWon(String(state.homeSetsWon));
+    setEditVisitorSetsWon(String(state.visitorSetsWon));
   }, [
-    isTeamNamesModalOpen,
     isMatchConfigModalOpen,
+    isEditValuesModalOpen,
     state.homeTeamName,
     state.visitorTeamName,
+    state.setNumber,
+    state.homeScore,
+    state.visitorScore,
+    state.homeTimeoutsTaken,
+    state.visitorTimeoutsTaken,
+    state.homeSetsWon,
+    state.visitorSetsWon,
     state.maxTimeoutsPerTeam,
     state.timeoutDurationSeconds,
     state.maxSetsWon
   ]);
 
-  const openTeamNamesModal = () => {
-    setHomeTeamNameInput(state.homeTeamName);
-    setVisitorTeamNameInput(state.visitorTeamName);
-    setTeamNamesModalOpen(true);
-  };
-
-  const closeTeamNamesModal = () => {
-    setTeamNamesModalOpen(false);
-  };
-
-  const saveTeamNames = () => {
-    onSetTeamNames(homeTeamNameInput.trim(), visitorTeamNameInput.trim());
-    setTeamNamesModalOpen(false);
-  };
-
   const openMatchConfigModal = () => {
     setMaxTimeoutsInput(String(state.maxTimeoutsPerTeam));
-    setTimeoutDurationInput(String(state.timeoutDurationSeconds));
+    setTimeoutDurationInput(
+      VOLLEYBALL_TIMEOUT_DURATION_CHOICES.includes(state.timeoutDurationSeconds)
+        ? String(state.timeoutDurationSeconds)
+        : String(VOLLEYBALL_TIMEOUT_DURATION_CHOICES[0])
+    );
     setMaxSetsWonInput(String(state.maxSetsWon));
     setMatchConfigModalOpen(true);
   };
@@ -177,6 +199,60 @@ export function ControllerView({
     setMatchConfigModalOpen(false);
   };
 
+  const openEditValuesModal = () => {
+    setEditHomeTeamName(state.homeTeamName);
+    setEditVisitorTeamName(state.visitorTeamName);
+    setEditSetNumber(String(state.setNumber));
+    setEditHomeScore(String(state.homeScore));
+    setEditVisitorScore(String(state.visitorScore));
+    setEditHomeTimeoutsTaken(String(state.homeTimeoutsTaken));
+    setEditVisitorTimeoutsTaken(String(state.visitorTimeoutsTaken));
+    setEditHomeSetsWon(String(state.homeSetsWon));
+    setEditVisitorSetsWon(String(state.visitorSetsWon));
+    setEditValuesModalOpen(true);
+  };
+
+  const closeEditValuesModal = () => {
+    setEditValuesModalOpen(false);
+  };
+
+  const saveEditValues = () => {
+    const homeScore = Number.parseInt(editHomeScore, 10);
+    const visitorScore = Number.parseInt(editVisitorScore, 10);
+    const setNumber = Number.parseInt(editSetNumber, 10);
+    const homeTimeoutsTaken = Number.parseInt(editHomeTimeoutsTaken, 10);
+    const visitorTimeoutsTaken = Number.parseInt(editVisitorTimeoutsTaken, 10);
+    const homeSetsWon = Number.parseInt(editHomeSetsWon, 10);
+    const visitorSetsWon = Number.parseInt(editVisitorSetsWon, 10);
+
+    if (!Number.isInteger(setNumber) || setNumber < 1 || setNumber > 5) return;
+    if (!Number.isInteger(homeScore) || homeScore < 0 || homeScore > MAX_SCORE) return;
+    if (!Number.isInteger(visitorScore) || visitorScore < 0 || visitorScore > MAX_SCORE) return;
+    if (!Number.isInteger(homeTimeoutsTaken) || homeTimeoutsTaken < 0 || homeTimeoutsTaken > state.maxTimeoutsPerTeam)
+      return;
+    if (
+      !Number.isInteger(visitorTimeoutsTaken) ||
+      visitorTimeoutsTaken < 0 ||
+      visitorTimeoutsTaken > state.maxTimeoutsPerTeam
+    )
+      return;
+    if (!Number.isInteger(homeSetsWon) || homeSetsWon < 0 || homeSetsWon > state.maxSetsWon) return;
+    if (!Number.isInteger(visitorSetsWon) || visitorSetsWon < 0 || visitorSetsWon > state.maxSetsWon) return;
+
+    onSetCurrentSetValues({
+      homeTeamName: editHomeTeamName.trim(),
+      visitorTeamName: editVisitorTeamName.trim(),
+      setNumber,
+      homeScore,
+      visitorScore,
+      homeTimeoutsTaken,
+      visitorTimeoutsTaken,
+      homeSetsWon,
+      visitorSetsWon
+    });
+    setEditValuesModalOpen(false);
+  };
+
   const leftSide: TeamSide = isSwapped ? "visitor" : "home";
   const rightSide: TeamSide = isSwapped ? "home" : "visitor";
   const getTeamView = (side: TeamSide) => ({
@@ -193,27 +269,7 @@ export function ControllerView({
   return (
     <main className="tablet-controller-page">
       <header className="tablet-top-row">
-        <span className={`text-link team-name-link ${leftSide === "home" ? "team-name-home" : "team-name-visitor"}`}>
-          {leftTeam.title}
-        </span>
-        <button className="text-link swap-link" type="button" onClick={() => setIsSwapped((prev) => !prev)}>
-          SWAP
-        </button>
-        <span
-          className={`text-link team-name-link ${rightSide === "home" ? "team-name-home" : "team-name-visitor"}`}
-        >
-          {rightTeam.title}
-        </span>
-        <button className="text-link configure-link" type="button" onClick={openTeamNamesModal}>
-          Configure team names
-        </button>
-        <button className="text-link configure-link" type="button" onClick={openMatchConfigModal}>
-          Match Configuration
-        </button>
-        <h1>Clock</h1>
-        <span className={connected ? "status-ok connection-status" : "status-bad connection-status"}>
-          {connected ? "Connected" : "Disconnected"}
-        </span>
+        <p className="set-number-chip">Set #: {state.setNumber}</p>
       </header>
 
       <section className="tablet-main-grid">
@@ -268,6 +324,15 @@ export function ControllerView({
             </div>
           </div>
         </section>
+        <button className="edit-scoreboard-button" type="button" onClick={openEditValuesModal}>
+          Edit scoreboard values
+        </button>
+        <button className="controller-secondary-button" type="button" onClick={() => setIsSwapped((prev) => !prev)}>
+          Swap teams right and left
+        </button>
+        <button className="controller-secondary-button" type="button" onClick={openMatchConfigModal}>
+          Match Configuration
+        </button>
       </section>
 
       <section className="future-notes">
@@ -275,52 +340,6 @@ export function ControllerView({
         <p>Swap teams is now live</p>
         <p>Sport presets (future feature)</p>
       </section>
-
-      {isTeamNamesModalOpen ? (
-        <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Configure team names">
-          <div className="modal-card">
-            <h2>Configure team names</h2>
-            <label className="modal-label">
-              Team 1 name
-              <input
-                value={homeTeamNameInput}
-                onChange={(event) =>
-                  setHomeTeamNameInput(event.target.value.slice(0, MAX_TEAM_NAME_LENGTH))
-                }
-                maxLength={MAX_TEAM_NAME_LENGTH}
-                placeholder="My team name"
-              />
-            </label>
-            <p className="modal-counter">
-              {homeTeamNameInput.length}/{MAX_TEAM_NAME_LENGTH}
-            </p>
-
-            <label className="modal-label">
-              Team 2 name
-              <input
-                value={visitorTeamNameInput}
-                onChange={(event) =>
-                  setVisitorTeamNameInput(event.target.value.slice(0, MAX_TEAM_NAME_LENGTH))
-                }
-                maxLength={MAX_TEAM_NAME_LENGTH}
-                placeholder="Other team name"
-              />
-            </label>
-            <p className="modal-counter">
-              {visitorTeamNameInput.length}/{MAX_TEAM_NAME_LENGTH}
-            </p>
-
-            <div className="modal-actions">
-              <button type="button" className="modal-secondary" onClick={closeTeamNamesModal}>
-                Cancel
-              </button>
-              <button type="button" onClick={saveTeamNames}>
-                Save
-              </button>
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       {isMatchConfigModalOpen ? (
         <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Match Configuration">
@@ -339,14 +358,16 @@ export function ControllerView({
             </label>
             <label className="modal-label">
               Timeout duration (seconds)
-              <input
-                type="number"
-                min={1}
-                step={1}
+              <select
                 value={timeoutDurationInput}
                 onChange={(event) => setTimeoutDurationInput(event.target.value)}
-                placeholder="60"
-              />
+              >
+                {VOLLEYBALL_TIMEOUT_DURATION_CHOICES.map((seconds) => (
+                  <option key={seconds} value={seconds}>
+                    {seconds}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="modal-label">
               Max sets won
@@ -370,6 +391,128 @@ export function ControllerView({
           </div>
         </section>
       ) : null}
+
+      {isEditValuesModalOpen ? (
+        <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Edit scoreboard values">
+          <div className="modal-card modal-card-wide">
+            <h2>Edit scoreboard values</h2>
+            <section className="team-edit-group match-settings-group">
+              <h3>Match settings</h3>
+              <label className="modal-label">
+                Set #
+                <select value={editSetNumber} onChange={(event) => setEditSetNumber(event.target.value)}>
+                  {[1, 2, 3, 4, 5].map((setNumber) => (
+                    <option key={setNumber} value={setNumber}>
+                      {setNumber}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </section>
+            <section className="team-edit-group home-edit-group">
+              <h3>Home team (blue section)</h3>
+              <label className="modal-label">
+                Team name:
+                <input
+                  value={editHomeTeamName}
+                  onChange={(event) => setEditHomeTeamName(event.target.value.slice(0, MAX_TEAM_NAME_LENGTH))}
+                  maxLength={MAX_TEAM_NAME_LENGTH}
+                />
+              </label>
+              <label className="modal-label">
+                Score:
+                <select value={editHomeScore} onChange={(event) => setEditHomeScore(event.target.value)}>
+                  {Array.from({ length: MAX_SCORE + 1 }, (_, score) => (
+                    <option key={score} value={score}>
+                      {score}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-label">
+                Timeouts taken:
+                <select
+                  value={editHomeTimeoutsTaken}
+                  onChange={(event) => setEditHomeTimeoutsTaken(event.target.value)}
+                >
+                  {Array.from({ length: state.maxTimeoutsPerTeam + 1 }, (_, count) => (
+                    <option key={count} value={count}>
+                      {count}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-label">
+                Sets won:
+                <select value={editHomeSetsWon} onChange={(event) => setEditHomeSetsWon(event.target.value)}>
+                  {Array.from({ length: state.maxSetsWon + 1 }, (_, count) => (
+                    <option key={count} value={count}>
+                      {count}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </section>
+
+            <section className="team-edit-group visitor-edit-group">
+              <h3>Visitor team (red section)</h3>
+              <label className="modal-label">
+                Team name:
+                <input
+                  value={editVisitorTeamName}
+                  onChange={(event) => setEditVisitorTeamName(event.target.value.slice(0, MAX_TEAM_NAME_LENGTH))}
+                  maxLength={MAX_TEAM_NAME_LENGTH}
+                />
+              </label>
+              <label className="modal-label">
+                Score:
+                <select value={editVisitorScore} onChange={(event) => setEditVisitorScore(event.target.value)}>
+                  {Array.from({ length: MAX_SCORE + 1 }, (_, score) => (
+                    <option key={score} value={score}>
+                      {score}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-label">
+                Timeouts taken:
+                <select
+                  value={editVisitorTimeoutsTaken}
+                  onChange={(event) => setEditVisitorTimeoutsTaken(event.target.value)}
+                >
+                  {Array.from({ length: state.maxTimeoutsPerTeam + 1 }, (_, count) => (
+                    <option key={count} value={count}>
+                      {count}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-label">
+                Sets won:
+                <select value={editVisitorSetsWon} onChange={(event) => setEditVisitorSetsWon(event.target.value)}>
+                  {Array.from({ length: state.maxSetsWon + 1 }, (_, count) => (
+                    <option key={count} value={count}>
+                      {count}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </section>
+
+            <div className="modal-actions">
+              <button type="button" className="modal-secondary" onClick={closeEditValuesModal}>
+                Cancel
+              </button>
+              <button type="button" onClick={saveEditValues}>
+                Update
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      <span className={connected ? "status-ok controller-status" : "status-bad controller-status"}>
+        {connected ? "Connected" : "Disconnected"}
+      </span>
     </main>
   );
 }

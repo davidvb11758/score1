@@ -12,6 +12,7 @@ type ScoreboardState = {
   maxTimeoutsPerTeam: number;
   timeoutDurationSeconds: number;
   maxSetsWon: number;
+  setNumber: number;
   homeTimeoutsTaken: number;
   visitorTimeoutsTaken: number;
   homeSetsWon: number;
@@ -24,6 +25,10 @@ type ScoreboardState = {
 const app = express();
 const httpServer = createServer(app);
 const MAX_TEAM_NAME_LENGTH = 25;
+const MAX_SCORE = 99;
+const MIN_SET_NUMBER = 1;
+const MAX_SET_NUMBER = 5;
+const VOLLEYBALL_TIMEOUT_DURATION_CHOICES = [30, 45, 60, 75, 90] as const;
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -40,6 +45,7 @@ const state: ScoreboardState = {
   maxTimeoutsPerTeam: 2,
   timeoutDurationSeconds: 60,
   maxSetsWon: 2,
+  setNumber: 1,
   homeTimeoutsTaken: 0,
   visitorTimeoutsTaken: 0,
   homeSetsWon: 0,
@@ -84,6 +90,24 @@ const sanitizePositiveInteger = (value: unknown, fallback: number) => {
   return next;
 };
 
+const sanitizeScore = (value: unknown, fallback: number) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  return Math.max(0, Math.min(MAX_SCORE, Math.floor(value)));
+};
+
+const sanitizeRangeInteger = (value: unknown, min: number, max: number, fallback: number) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(value)));
+};
+
+const sanitizeTimeoutDuration = (value: unknown, fallback: number) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  const rounded = Math.floor(value);
+  return VOLLEYBALL_TIMEOUT_DURATION_CHOICES.includes(rounded as (typeof VOLLEYBALL_TIMEOUT_DURATION_CHOICES)[number])
+    ? rounded
+    : fallback;
+};
+
 const stopClockInterval = () => {
   if (!clockInterval) return;
   clearInterval(clockInterval);
@@ -107,7 +131,7 @@ const setMatchConfiguration = (
   maxSetsWon: unknown
 ) => {
   state.maxTimeoutsPerTeam = sanitizePositiveInteger(maxTimeoutsPerTeam, state.maxTimeoutsPerTeam);
-  state.timeoutDurationSeconds = sanitizePositiveInteger(timeoutDurationSeconds, state.timeoutDurationSeconds);
+  state.timeoutDurationSeconds = sanitizeTimeoutDuration(timeoutDurationSeconds, state.timeoutDurationSeconds);
   state.maxSetsWon = sanitizePositiveInteger(maxSetsWon, state.maxSetsWon);
 
   state.homeTimeoutsTaken = Math.min(state.homeTimeoutsTaken, state.maxTimeoutsPerTeam);
@@ -178,6 +202,40 @@ const awardSet = (team: "home" | "visitor") => {
   // Start-of-set baseline: timeout usage is tracked per set.
   state.homeTimeoutsTaken = 0;
   state.visitorTimeoutsTaken = 0;
+  state.setNumber = Math.min(MAX_SET_NUMBER, state.setNumber + 1);
+  emitState();
+};
+
+const setCurrentSetValues = (payload: {
+  homeTeamName?: string;
+  visitorTeamName?: string;
+  setNumber?: number;
+  homeScore?: number;
+  visitorScore?: number;
+  homeTimeoutsTaken?: number;
+  visitorTimeoutsTaken?: number;
+  homeSetsWon?: number;
+  visitorSetsWon?: number;
+}) => {
+  state.homeTeamName = sanitizeTeamName(payload.homeTeamName, state.homeTeamName);
+  state.visitorTeamName = sanitizeTeamName(payload.visitorTeamName, state.visitorTeamName);
+  state.setNumber = sanitizeRangeInteger(payload.setNumber, MIN_SET_NUMBER, MAX_SET_NUMBER, state.setNumber);
+  state.homeScore = sanitizeScore(payload.homeScore, state.homeScore);
+  state.visitorScore = sanitizeScore(payload.visitorScore, state.visitorScore);
+  state.homeTimeoutsTaken = sanitizeRangeInteger(
+    payload.homeTimeoutsTaken,
+    0,
+    state.maxTimeoutsPerTeam,
+    state.homeTimeoutsTaken
+  );
+  state.visitorTimeoutsTaken = sanitizeRangeInteger(
+    payload.visitorTimeoutsTaken,
+    0,
+    state.maxTimeoutsPerTeam,
+    state.visitorTimeoutsTaken
+  );
+  state.homeSetsWon = sanitizeRangeInteger(payload.homeSetsWon, 0, state.maxSetsWon, state.homeSetsWon);
+  state.visitorSetsWon = sanitizeRangeInteger(payload.visitorSetsWon, 0, state.maxSetsWon, state.visitorSetsWon);
   emitState();
 };
 
@@ -244,6 +302,23 @@ io.on("connection", (socket) => {
     "controller:setMatchConfiguration",
     (payload: { maxTimeoutsPerTeam?: number; timeoutDurationSeconds?: number; maxSetsWon?: number } = {}) => {
       setMatchConfiguration(payload.maxTimeoutsPerTeam, payload.timeoutDurationSeconds, payload.maxSetsWon);
+    }
+  );
+
+  socket.on(
+    "controller:setCurrentSetValues",
+    (payload: {
+      homeTeamName?: string;
+      visitorTeamName?: string;
+      setNumber?: number;
+      homeScore?: number;
+      visitorScore?: number;
+      homeTimeoutsTaken?: number;
+      visitorTimeoutsTaken?: number;
+      homeSetsWon?: number;
+      visitorSetsWon?: number;
+    } = {}) => {
+      setCurrentSetValues(payload);
     }
   );
 

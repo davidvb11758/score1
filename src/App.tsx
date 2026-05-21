@@ -12,6 +12,7 @@ const initialState: ScoreboardState = {
   maxTimeoutsPerTeam: 2,
   timeoutDurationSeconds: 60,
   maxSetsWon: 2,
+  setNumber: 1,
   homeTimeoutsTaken: 0,
   visitorTimeoutsTaken: 0,
   homeSetsWon: 0,
@@ -50,9 +51,6 @@ export function App() {
   const startClock = () => socket.emit("controller:startClock");
   const stopClock = () => socket.emit("controller:stopClock");
   const setClock = (seconds: number) => socket.emit("controller:setClock", seconds);
-  const setTeamNames = (homeTeamName: string, visitorTeamName: string) => {
-    socket.emit("controller:setTeamNames", { homeTeamName, visitorTeamName });
-  };
   const setMatchConfiguration = (
     maxTimeoutsPerTeam: number,
     timeoutDurationSeconds: number,
@@ -70,6 +68,19 @@ export function App() {
   const awardSet = (side: TeamSide) => {
     socket.emit(side === "home" ? "controller:awardHomeSet" : "controller:awardVisitorSet");
   };
+  const setCurrentSetValues = (payload: {
+    homeTeamName: string;
+    visitorTeamName: string;
+    setNumber: number;
+    homeScore: number;
+    visitorScore: number;
+    homeTimeoutsTaken: number;
+    visitorTimeoutsTaken: number;
+    homeSetsWon: number;
+    visitorSetsWon: number;
+  }) => {
+    socket.emit("controller:setCurrentSetValues", payload);
+  };
 
   if (pathname === "/display") {
     return <DisplayView state={state} connected={connected} />;
@@ -84,10 +95,10 @@ export function App() {
         onStartClock={startClock}
         onStopClock={stopClock}
         onSetClock={setClock}
-        onSetTeamNames={setTeamNames}
         onSetMatchConfiguration={setMatchConfiguration}
         onTakeTimeout={takeTimeout}
         onAwardSet={awardSet}
+        onSetCurrentSetValues={setCurrentSetValues}
       />
     );
   }

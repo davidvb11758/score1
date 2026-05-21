@@ -8,6 +8,7 @@ export type ScoreboardState = {
   maxTimeoutsPerTeam: number;
   timeoutDurationSeconds: number;
   maxSetsWon: number;
+  setNumber: number;
   homeTimeoutsTaken: number;
   visitorTimeoutsTaken: number;
   homeSetsWon: number;

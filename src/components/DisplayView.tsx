@@ -39,6 +39,8 @@ type DisplayLayout = {
     | "teamOneSetsWonValue"
     | "teamTwoSetsWonLabel"
     | "teamTwoSetsWonValue"
+    | "setLabel"
+    | "setValue"
     | "timer"
     | "connectionStatus",
     ElementStyleConfig
@@ -173,6 +175,26 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontSize: 48,
         color: "#f8f9fb",
         textAlign: "left",
+        fontWeight: 700
+      },
+      setLabel: {
+        x: 905,
+        y: 310,
+        width: 120,
+        height: 54,
+        fontSize: 60,
+        color: "#f8f9fb",
+        textAlign: "center",
+        fontWeight: 600
+      },
+      setValue: {
+        x: 905,
+        y: 376,
+        width: 120,
+        height: 72,
+        fontSize: 88,
+        color: "#f8f9fb",
+        textAlign: "center",
         fontWeight: 700
       },
       timer: {
@@ -328,6 +350,26 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         textAlign: "left",
         fontWeight: 700
       },
+      setLabel: {
+        x: 900,
+        y: 250,
+        width: 120,
+        height: 48,
+        fontSize: 44,
+        color: "#f8f9fb",
+        textAlign: "center",
+        fontWeight: 600
+      },
+      setValue: {
+        x: 900,
+        y: 306,
+        width: 120,
+        height: 64,
+        fontSize: 70,
+        color: "#f8f9fb",
+        textAlign: "center",
+        fontWeight: 700
+      },
       timer: {
         x: 503,
         y: 683,
@@ -427,6 +469,12 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
             </p>
             <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonValue)}>
               {state.visitorSetsWon > 0 ? state.visitorSetsWon : ""}
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.setLabel)}>
+              Set
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.setValue)}>
+              {state.setNumber}
             </p>
             <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.timer)}>
               {formatClock(state.clockSecondsRemaining)}
