@@ -9,6 +9,13 @@ const initialState: ScoreboardState = {
   visitorScore: 0,
   homeTeamName: "My team name",
   visitorTeamName: "Other team name",
+  maxTimeoutsPerTeam: 2,
+  timeoutDurationSeconds: 60,
+  maxSetsWon: 2,
+  homeTimeoutsTaken: 0,
+  visitorTimeoutsTaken: 0,
+  homeSetsWon: 0,
+  visitorSetsWon: 0,
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
@@ -43,9 +50,25 @@ export function App() {
   const startClock = () => socket.emit("controller:startClock");
   const stopClock = () => socket.emit("controller:stopClock");
   const setClock = (seconds: number) => socket.emit("controller:setClock", seconds);
-  const setTimeoutAndStart = (seconds: number) => socket.emit("controller:setClockAndStart", seconds);
   const setTeamNames = (homeTeamName: string, visitorTeamName: string) => {
     socket.emit("controller:setTeamNames", { homeTeamName, visitorTeamName });
+  };
+  const setMatchConfiguration = (
+    maxTimeoutsPerTeam: number,
+    timeoutDurationSeconds: number,
+    maxSetsWon: number
+  ) => {
+    socket.emit("controller:setMatchConfiguration", {
+      maxTimeoutsPerTeam,
+      timeoutDurationSeconds,
+      maxSetsWon
+    });
+  };
+  const takeTimeout = (side: TeamSide) => {
+    socket.emit(side === "home" ? "controller:takeHomeTimeout" : "controller:takeVisitorTimeout");
+  };
+  const awardSet = (side: TeamSide) => {
+    socket.emit(side === "home" ? "controller:awardHomeSet" : "controller:awardVisitorSet");
   };
 
   if (pathname === "/display") {
@@ -61,8 +84,10 @@ export function App() {
         onStartClock={startClock}
         onStopClock={stopClock}
         onSetClock={setClock}
-        onSetTimeoutAndStart={setTimeoutAndStart}
         onSetTeamNames={setTeamNames}
+        onSetMatchConfiguration={setMatchConfiguration}
+        onTakeTimeout={takeTimeout}
+        onAwardSet={awardSet}
       />
     );
   }

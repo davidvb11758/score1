@@ -104,7 +104,7 @@ button:active {
 
 .tablet-top-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr) auto auto auto;
+  grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr) auto auto auto auto;
   align-items: center;
   gap: 1rem;
 }
@@ -130,6 +130,23 @@ button:active {
 .configure-link {
   color: #9ec8ff;
   font-size: 1.1rem;
+}
+
+.swap-link {
+  color: #9ec8ff;
+}
+
+.team-name-link {
+  display: inline-block;
+  max-width: 320px;
+}
+
+.team-name-home {
+  color: #4e7de5;
+}
+
+.team-name-visitor {
+  color: #f1737c;
 }
 
 .future-link {
@@ -195,41 +212,64 @@ button:active {
   line-height: 1;
 }
 
-.team-timeout-card {
+.team-tracking-card {
   margin-top: 0.65rem;
   border-radius: 6px;
   padding: 0.6rem 0.85rem 0.85rem;
 }
 
-.team-timeout-card h3 {
-  margin: 0 0 0.45rem;
-  text-align: center;
-  font-size: 2rem;
-}
-
-.team-timeout-buttons {
+.team-action-row {
   display: grid;
-  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 0.55rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.team-timeout-buttons button {
-  border-radius: 12px;
+.team-outline-button {
+  border-radius: 14px;
+  min-height: 58px;
+  font-size: 1.85rem;
+  background: transparent;
+  border: 2px solid #2d4d85;
+}
+
+.other-team-panel .team-outline-button {
+  border-color: #814956;
+}
+
+.team-outline-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.team-tracking-value {
+  min-height: 58px;
   font-size: 2.1rem;
-  min-height: 64px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-meta-hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0.9;
 }
 
 .my-team-panel {
   background: #3f79e6;
 }
 
-.my-team-panel .team-stepper-button,
-.my-team-panel .team-timeout-buttons button {
+.my-team-panel .team-stepper-button {
   background: #3f79e6;
   border: 2px solid #2d4d85;
 }
 
 .my-team-panel .team-score-card,
-.my-team-panel .team-timeout-card {
+.my-team-panel .team-tracking-card {
   background: #3f79e6;
   border: 2px solid #2d4d85;
 }
@@ -238,14 +278,13 @@ button:active {
   background: #f07078;
 }
 
-.other-team-panel .team-stepper-button,
-.other-team-panel .team-timeout-buttons button {
+.other-team-panel .team-stepper-button {
   background: #f07078;
   border: 2px solid #814956;
 }
 
 .other-team-panel .team-score-card,
-.other-team-panel .team-timeout-card {
+.other-team-panel .team-tracking-card {
   background: #f07078;
   border: 2px solid #814956;
 }

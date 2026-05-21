@@ -5,6 +5,13 @@ export type ScoreboardState = {
   visitorScore: number;
   homeTeamName: string;
   visitorTeamName: string;
+  maxTimeoutsPerTeam: number;
+  timeoutDurationSeconds: number;
+  maxSetsWon: number;
+  homeTimeoutsTaken: number;
+  visitorTimeoutsTaken: number;
+  homeSetsWon: number;
+  visitorSetsWon: number;
   clockSecondsRemaining: number;
   clockRunning: boolean;
   updatedAt: string;

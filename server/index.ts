@@ -9,6 +9,13 @@ type ScoreboardState = {
   visitorScore: number;
   homeTeamName: string;
   visitorTeamName: string;
+  maxTimeoutsPerTeam: number;
+  timeoutDurationSeconds: number;
+  maxSetsWon: number;
+  homeTimeoutsTaken: number;
+  visitorTimeoutsTaken: number;
+  homeSetsWon: number;
+  visitorSetsWon: number;
   clockSecondsRemaining: number;
   clockRunning: boolean;
   updatedAt: string;
@@ -16,6 +23,7 @@ type ScoreboardState = {
 
 const app = express();
 const httpServer = createServer(app);
+const MAX_TEAM_NAME_LENGTH = 25;
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -29,6 +37,13 @@ const state: ScoreboardState = {
   visitorScore: 0,
   homeTeamName: "My team name",
   visitorTeamName: "Other team name",
+  maxTimeoutsPerTeam: 2,
+  timeoutDurationSeconds: 60,
+  maxSetsWon: 2,
+  homeTimeoutsTaken: 0,
+  visitorTimeoutsTaken: 0,
+  homeSetsWon: 0,
+  visitorSetsWon: 0,
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
@@ -53,7 +68,7 @@ const setScore = (team: "home" | "visitor", score: number) => {
 
 const sanitizeTeamName = (value: unknown, fallback: string) => {
   if (typeof value !== "string") return fallback;
-  const trimmed = value.trim().slice(0, 35);
+  const trimmed = value.trim().slice(0, MAX_TEAM_NAME_LENGTH);
   return trimmed.length > 0 ? trimmed : fallback;
 };
 
@@ -61,6 +76,12 @@ const setTeamNames = (homeTeamName: unknown, visitorTeamName: unknown) => {
   state.homeTeamName = sanitizeTeamName(homeTeamName, state.homeTeamName);
   state.visitorTeamName = sanitizeTeamName(visitorTeamName, state.visitorTeamName);
   emitState();
+};
+
+const sanitizePositiveInteger = (value: unknown, fallback: number) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  const next = Math.max(1, Math.floor(value));
+  return next;
 };
 
 const stopClockInterval = () => {
@@ -77,6 +98,22 @@ const stopClock = () => {
 
 const setClock = (seconds: number) => {
   state.clockSecondsRemaining = Math.max(0, Math.floor(seconds));
+  emitState();
+};
+
+const setMatchConfiguration = (
+  maxTimeoutsPerTeam: unknown,
+  timeoutDurationSeconds: unknown,
+  maxSetsWon: unknown
+) => {
+  state.maxTimeoutsPerTeam = sanitizePositiveInteger(maxTimeoutsPerTeam, state.maxTimeoutsPerTeam);
+  state.timeoutDurationSeconds = sanitizePositiveInteger(timeoutDurationSeconds, state.timeoutDurationSeconds);
+  state.maxSetsWon = sanitizePositiveInteger(maxSetsWon, state.maxSetsWon);
+
+  state.homeTimeoutsTaken = Math.min(state.homeTimeoutsTaken, state.maxTimeoutsPerTeam);
+  state.visitorTimeoutsTaken = Math.min(state.visitorTimeoutsTaken, state.maxTimeoutsPerTeam);
+  state.homeSetsWon = Math.min(state.homeSetsWon, state.maxSetsWon);
+  state.visitorSetsWon = Math.min(state.visitorSetsWon, state.maxSetsWon);
   emitState();
 };
 
@@ -108,6 +145,40 @@ const startClock = () => {
 
     emitState();
   }, 1000);
+};
+
+const takeTeamTimeout = (team: "home" | "visitor") => {
+  const timeoutCountField = team === "home" ? "homeTimeoutsTaken" : "visitorTimeoutsTaken";
+  if (state[timeoutCountField] >= state.maxTimeoutsPerTeam) {
+    emitState();
+    return;
+  }
+
+  state[timeoutCountField] += 1;
+  stopClockInterval();
+  state.clockRunning = false;
+  state.clockSecondsRemaining = state.timeoutDurationSeconds;
+  emitState();
+  startClock();
+};
+
+const awardSet = (team: "home" | "visitor") => {
+  const setsWonField = team === "home" ? "homeSetsWon" : "visitorSetsWon";
+  if (state[setsWonField] >= state.maxSetsWon) {
+    emitState();
+    return;
+  }
+
+  if (team === "home") {
+    state.homeSetsWon += 1;
+  } else {
+    state.visitorSetsWon += 1;
+  }
+
+  // Start-of-set baseline: timeout usage is tracked per set.
+  state.homeTimeoutsTaken = 0;
+  state.visitorTimeoutsTaken = 0;
+  emitState();
 };
 
 io.on("connection", (socket) => {
@@ -152,6 +223,29 @@ io.on("connection", (socket) => {
     setClock(seconds);
     startClock();
   });
+
+  socket.on("controller:takeHomeTimeout", () => {
+    takeTeamTimeout("home");
+  });
+
+  socket.on("controller:takeVisitorTimeout", () => {
+    takeTeamTimeout("visitor");
+  });
+
+  socket.on("controller:awardHomeSet", () => {
+    awardSet("home");
+  });
+
+  socket.on("controller:awardVisitorSet", () => {
+    awardSet("visitor");
+  });
+
+  socket.on(
+    "controller:setMatchConfiguration",
+    (payload: { maxTimeoutsPerTeam?: number; timeoutDurationSeconds?: number; maxSetsWon?: number } = {}) => {
+      setMatchConfiguration(payload.maxTimeoutsPerTeam, payload.timeoutDurationSeconds, payload.maxSetsWon);
+    }
+  );
 
   socket.on(
     "controller:setTeamNames",

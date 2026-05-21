@@ -31,6 +31,14 @@ type DisplayLayout = {
     | "teamTwoName"
     | "teamOneScore"
     | "teamTwoScore"
+    | "teamOneTimeoutLabel"
+    | "teamOneTimeoutValue"
+    | "teamTwoTimeoutLabel"
+    | "teamTwoTimeoutValue"
+    | "teamOneSetsWonLabel"
+    | "teamOneSetsWonValue"
+    | "teamTwoSetsWonLabel"
+    | "teamTwoSetsWonValue"
     | "timer"
     | "connectionStatus",
     ElementStyleConfig
@@ -42,9 +50,9 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
     backgroundImage: volleyballBackground,
     elements: {
       teamOneName: {
-        x: 280,
+        x: 100,
         y: 50,
-        width: 500,
+        width: 800,
         height: 54,
         fontSize: 72,
         color: "#4e7de5",
@@ -53,9 +61,9 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 500
       },
       teamTwoName: {
-        x: 1130,
+        x: 1000,
         y: 50,
-        width: 500,
+        width: 800,
         height: 54,
         fontSize: 72,
         color: "#f1737c",
@@ -75,6 +83,46 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700,
         lineHeight: 1
       },
+      teamOneTimeoutLabel: {
+        x: 310,
+        y: 610,
+        width: 300,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamOneTimeoutValue: {
+        x: 600,
+        y: 610,
+        width: 110,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
+      teamOneSetsWonLabel: {
+        x: 310,
+        y: 670,
+        width: 300,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamOneSetsWonValue: {
+        x: 610,
+        y: 670,
+        width: 110,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
       teamTwoScore: {
         x: 1100,
         y: 150,
@@ -87,9 +135,49 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700,
         lineHeight: 1
       },
+      teamTwoTimeoutLabel: {
+        x: 1220,
+        y: 610,
+        width: 300,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamTwoTimeoutValue: {
+        x: 1530,
+        y: 610,
+        width: 110,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
+      teamTwoSetsWonLabel: {
+        x: 1220,
+        y: 670,
+        width: 300,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamTwoSetsWonValue: {
+        x: 1530,
+        y: 670,
+        width: 110,
+        height: 50,
+        fontSize: 48,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
       timer: {
         x: 450,
-        y: 510,
+        y: 630,
         width: 1100,
         height: 450,
         fontSize: 292,
@@ -148,6 +236,46 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700,
         lineHeight: 1
       },
+      teamOneTimeoutLabel: {
+        x: 40,
+        y: 476,
+        width: 300,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamOneTimeoutValue: {
+        x: 330,
+        y: 476,
+        width: 110,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
+      teamOneSetsWonLabel: {
+        x: 40,
+        y: 530,
+        width: 300,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamOneSetsWonValue: {
+        x: 330,
+        y: 530,
+        width: 110,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
       teamTwoScore: {
         x: 1183,
         y: 96,
@@ -160,9 +288,49 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700,
         lineHeight: 1
       },
+      teamTwoTimeoutLabel: {
+        x: 1183,
+        y: 476,
+        width: 300,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamTwoTimeoutValue: {
+        x: 1473,
+        y: 476,
+        width: 110,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
+      teamTwoSetsWonLabel: {
+        x: 1183,
+        y: 530,
+        width: 300,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 600
+      },
+      teamTwoSetsWonValue: {
+        x: 1473,
+        y: 530,
+        width: 110,
+        height: 50,
+        fontSize: 42,
+        color: "#f8f9fb",
+        textAlign: "left",
+        fontWeight: 700
+      },
       timer: {
         x: 503,
-        y: 483,
+        y: 683,
         width: 916,
         height: 355,
         fontSize: 292,
@@ -235,6 +403,30 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
             </p>
             <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.teamTwoScore)}>
               {state.visitorScore}
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutLabel)}>
+              T/O taken
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutValue)}>
+              {state.homeTimeoutsTaken > 0 ? state.homeTimeoutsTaken : ""}
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutLabel)}>
+              T/O taken
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutValue)}>
+              {state.visitorTimeoutsTaken > 0 ? state.visitorTimeoutsTaken : ""}
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonLabel)}>
+              Sets won
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonValue)}>
+              {state.homeSetsWon > 0 ? state.homeSetsWon : ""}
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonLabel)}>
+              Sets won
+            </p>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonValue)}>
+              {state.visitorSetsWon > 0 ? state.visitorSetsWon : ""}
             </p>
             <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.timer)}>
               {formatClock(state.clockSecondsRemaining)}
