@@ -79,6 +79,10 @@ a {
   align-items: center;
 }
 
+.tv-italic-data {
+  font-style: italic;
+}
+
 .tv-centered-value {
   justify-content: center;
 }

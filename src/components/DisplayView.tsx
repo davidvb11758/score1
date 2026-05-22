@@ -57,7 +57,7 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         width: 800,
         height: 54,
         fontSize: 72,
-        color: "#4e7de5",
+        color: "#ffd700",
         textAlign: "center",
         textDecoration: "",
         fontWeight: 500
@@ -68,8 +68,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         width: 800,
         height: 54,
         fontSize: 72,
-        color: "#f1737c",
-        textAlign: "center",
+        color: "#ffd700",
+        textAlign: "right",
         textDecoration: "",
         fontWeight: 500
       },
@@ -232,7 +232,7 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         width: 420,
         height: 54,
         fontSize: 52,
-        color: "#4e7de5",
+        color: "#ffd700",
         textDecoration: "underline",
         fontWeight: 500
       },
@@ -242,7 +242,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         width: 560,
         height: 54,
         fontSize: 52,
-        color: "#f1737c",
+        color: "#ffd700",
+        textAlign: "right",
         textDecoration: "underline",
         fontWeight: 500
       },
@@ -434,49 +435,39 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
         <section className="tv-stage">
           <img className="tv-background-image" src={layout.backgroundImage} alt="" />
           <section className="tv-overlay-layer">
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneName)}>
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamOneName)}>
               {state.homeTeamName}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoName)}>
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamTwoName)}>
               {state.visitorTeamName}
             </p>
-            <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.teamOneScore)}>
+            <p className="tv-overlay-text tv-centered-value tv-italic-data" style={toElementStyle(layout.elements.teamOneScore)}>
               {state.homeScore}
             </p>
-            <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.teamTwoScore)}>
+            <p className="tv-overlay-text tv-centered-value tv-italic-data" style={toElementStyle(layout.elements.teamTwoScore)}>
               {state.visitorScore}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutLabel)}>
-              T/O taken
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutValue)}>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutLabel)} />
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamOneTimeoutValue)}>
               {state.homeTimeoutsTaken > 0 ? state.homeTimeoutsTaken : ""}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutLabel)}>
-              T/O taken
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutValue)}>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutLabel)} />
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamTwoTimeoutValue)}>
               {state.visitorTimeoutsTaken > 0 ? state.visitorTimeoutsTaken : ""}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonLabel)}>
-              Sets won
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonValue)}>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonLabel)} />
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamOneSetsWonValue)}>
               {state.homeSetsWon > 0 ? state.homeSetsWon : ""}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonLabel)}>
-              Sets won
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonValue)}>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonLabel)} />
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamTwoSetsWonValue)}>
               {state.visitorSetsWon > 0 ? state.visitorSetsWon : ""}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.setLabel)}>
-              Set
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.setValue)}>
+            <p className="tv-overlay-text" style={toElementStyle(layout.elements.setLabel)} />
+            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.setValue)}>
               {state.setNumber}
             </p>
-            <p className="tv-overlay-text tv-centered-value" style={toElementStyle(layout.elements.timer)}>
+            <p className="tv-overlay-text tv-centered-value tv-italic-data" style={toElementStyle(layout.elements.timer)}>
               {formatClock(state.clockSecondsRemaining)}
             </p>
             <p
