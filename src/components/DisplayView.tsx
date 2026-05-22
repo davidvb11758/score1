@@ -52,8 +52,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
     backgroundImage: volleyballBackground,
     elements: {
       teamOneName: {
-        x: 100,
-        y: 50,
+        x: 10,
+        y: 540,
         width: 800,
         height: 54,
         fontSize: 72,
@@ -63,8 +63,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 500
       },
       teamTwoName: {
-        x: 1000,
-        y: 50,
+        x: 1200,
+        y: 540,
         width: 800,
         height: 54,
         fontSize: 72,
@@ -74,9 +74,9 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 500
       },
       teamOneScore: {
-        x: 180,
-        y: 150,
-        width: 700,
+        x:1,
+        y: 130,
+        width: 590,
         height: 370,
         fontSize: 400,
         color: "#f8f9fb",
@@ -96,8 +96,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamOneTimeoutValue: {
-        x: 600,
-        y: 610,
+        x: 450,
+        y: 670,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -116,8 +116,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamOneSetsWonValue: {
-        x: 610,
-        y: 670,
+        x: 450,
+        y: 770,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -126,9 +126,9 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700
       },
       teamTwoScore: {
-        x: 1100,
-        y: 150,
-        width: 700,
+        x: 1340,
+        y: 130,
+        width: 590,
         height: 370,
         fontSize: 400,
         color: "#f8f9fb",
@@ -148,8 +148,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamTwoTimeoutValue: {
-        x: 1530,
-        y: 610,
+        x: 1800,
+        y: 670,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -168,8 +168,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamTwoSetsWonValue: {
-        x: 1530,
-        y: 670,
+        x: 1800,
+        y: 770,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -188,8 +188,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       setValue: {
-        x: 905,
-        y: 376,
+        x: 1050,
+        y: 165,
         width: 120,
         height: 72,
         fontSize: 88,
@@ -198,11 +198,11 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700
       },
       timer: {
-        x: 450,
-        y: 630,
+        x: 410,
+        y: 150,
         width: 1100,
         height: 450,
-        fontSize: 292,
+        fontSize: 230,
         color: "#f8f9fb",
         background: "transparent",
         textAlign: "center",
