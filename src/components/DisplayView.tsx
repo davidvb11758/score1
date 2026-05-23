@@ -428,6 +428,7 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
   const query = new URLSearchParams(window.location.search);
   const sport = (query.get("sport") ?? "volleyball").toLowerCase();
   const layout = DISPLAY_LAYOUTS[sport] ?? DISPLAY_LAYOUTS.volleyball;
+  const historyBySet = new Map(state.setHistory.map((entry) => [entry.setNumber, entry]));
 
   return (
     <main className="tv-display-root">
@@ -470,6 +471,18 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
             <p className="tv-overlay-text tv-centered-value tv-italic-data" style={toElementStyle(layout.elements.timer)}>
               {formatClock(state.clockSecondsRemaining)}
             </p>
+            <section className="tv-score-history">
+              <div className="tv-score-history-grid">
+                {[1, 2, 3, 4, 5].map((setNumber) => {
+                  const setScore = historyBySet.get(setNumber);
+                  return (
+                    <span key={setNumber}>
+                      {setScore ? `${setScore.homeScore}-${setScore.visitorScore}` : ""}
+                    </span>
+                  );
+                })}
+              </div>
+            </section>
             <p
               className={connected ? "tv-overlay-text status-ok" : "tv-overlay-text status-bad"}
               style={toElementStyle(layout.elements.connectionStatus)}

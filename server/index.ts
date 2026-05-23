@@ -17,6 +17,7 @@ type ScoreboardState = {
   visitorTimeoutsTaken: number;
   homeSetsWon: number;
   visitorSetsWon: number;
+  setHistory: Array<{ setNumber: number; homeScore: number; visitorScore: number }>;
   clockSecondsRemaining: number;
   clockRunning: boolean;
   updatedAt: string;
@@ -53,6 +54,7 @@ const state: ScoreboardState = {
   visitorTimeoutsTaken: 0,
   homeSetsWon: 0,
   visitorSetsWon: 0,
+  setHistory: [],
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
@@ -207,6 +209,16 @@ const awardSet = (team: "home" | "visitor") => {
     state.visitorSetsWon += 1;
   }
 
+  const completedSetScore = {
+    setNumber: state.setNumber,
+    homeScore: state.homeScore,
+    visitorScore: state.visitorScore
+  };
+  const historyWithoutCurrentSet = state.setHistory.filter((entry) => entry.setNumber !== state.setNumber);
+  state.setHistory = [...historyWithoutCurrentSet, completedSetScore]
+    .filter((entry) => entry.setNumber >= MIN_SET_NUMBER && entry.setNumber <= MAX_SET_NUMBER)
+    .sort((a, b) => a.setNumber - b.setNumber);
+
   // Start-of-set baseline: timeout usage is tracked per set.
   state.homeTimeoutsTaken = 0;
   state.visitorTimeoutsTaken = 0;
@@ -265,6 +277,7 @@ const startNewMatch = () => {
   state.visitorTimeoutsTaken = 0;
   state.homeSetsWon = 0;
   state.visitorSetsWon = 0;
+  state.setHistory = [];
   emitState();
 };
 

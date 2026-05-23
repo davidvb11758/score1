@@ -87,6 +87,36 @@ a {
   justify-content: center;
 }
 
+.tv-score-history {
+  position: absolute;
+  left: 25%;
+  bottom: 44px;
+  width: 50%;
+  text-align: center;
+}
+
+.tv-score-history p {
+  margin: 0 0 0.2rem;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.tv-score-history-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+}
+
+.tv-score-history-grid span {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.75rem;
+  font-style: italic;
+  font-weight: 700;
+}
+
 button {
   border: none;
   border-radius: 10px;

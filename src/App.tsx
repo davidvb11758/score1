@@ -17,6 +17,7 @@ const initialState: ScoreboardState = {
   visitorTimeoutsTaken: 0,
   homeSetsWon: 0,
   visitorSetsWon: 0,
+  setHistory: [],
   clockSecondsRemaining: 180,
   clockRunning: false,
   updatedAt: new Date().toISOString()
