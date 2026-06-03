@@ -30,7 +30,7 @@ type ControllerViewProps = {
   }) => void;
 };
 
-const CLOCK_MINUTE_CHOICES = [1, 2, 3, 4, 6, 8, 10];
+const CLOCK_MINUTE_CHOICES = [0, 1, 2, 3, 4, 6, 8, 10];
 const VOLLEYBALL_TIMEOUT_DURATION_CHOICES = [30, 45, 60, 75, 90];
 const VOLLEYBALL_MAX_TIMEOUTS_PER_TEAM_CHOICES = [1, 2];
 const MAX_SETS_WON_CHOICES = [1, 2, 3, 4, 5];
@@ -41,7 +41,30 @@ function formatClock(totalSeconds: number) {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
   const minutes = Math.floor(safeSeconds / 60);
   const seconds = safeSeconds % 60;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatHourMinute(value: Date) {
+  return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
+function formatManualClockFromDigits(digits: string) {
+  const safeDigits = digits.replace(/\D/g, "");
+  if (!safeDigits) return "0:00";
+  const secondsText = safeDigits.slice(-2).padStart(2, "0");
+  const minutesText = safeDigits.slice(0, -2);
+  const minutes = minutesText ? Number.parseInt(minutesText, 10) : 0;
+  return `${minutes}:${secondsText}`;
+}
+
+function parseManualClockDigitsToSeconds(digits: string) {
+  const safeDigits = digits.replace(/\D/g, "");
+  if (!safeDigits) return 0;
+  const secondsText = safeDigits.slice(-2).padStart(2, "0");
+  const minutesText = safeDigits.slice(0, -2);
+  const minutes = minutesText ? Number.parseInt(minutesText, 10) : 0;
+  const seconds = Math.min(Number.parseInt(secondsText, 10), 59);
+  return minutes * 60 + seconds;
 }
 
 function TeamControls(props: {
@@ -52,7 +75,6 @@ function TeamControls(props: {
   timeoutsTaken: number;
   maxTimeoutsPerTeam: number;
   maxSetsWon: number;
-  timeoutDurationSeconds: number;
   side: TeamSide;
   onChangeScore: (side: TeamSide, delta: number) => void;
   onTakeTimeout: (side: TeamSide) => void;
@@ -66,7 +88,6 @@ function TeamControls(props: {
     timeoutsTaken,
     maxTimeoutsPerTeam,
     maxSetsWon,
-    timeoutDurationSeconds,
     side,
     onChangeScore,
     onTakeTimeout,
@@ -77,6 +98,7 @@ function TeamControls(props: {
 
   return (
     <article className={`team-panel ${accentClassName}`}>
+      <p className="team-name-banner">{title}</p>
       <div className="team-panel-top">
         <div className="team-stepper">
           <button className="team-stepper-button" onClick={() => onChangeScore(side, 1)}>
@@ -88,7 +110,6 @@ function TeamControls(props: {
         </div>
 
         <div className="team-score-card">
-          <h2>{title}</h2>
           <p>{score}</p>
         </div>
       </div>
@@ -106,9 +127,6 @@ function TeamControls(props: {
           </button>
           <span className="team-tracking-value">{setsWon > 0 ? setsWon : ""}</span>
         </div>
-        <p className="team-meta-hint">
-          Timeout duration: {timeoutDurationSeconds} sec | Max T/O: {maxTimeoutsPerTeam} | Max sets: {maxSetsWon}
-        </p>
       </div>
     </article>
   );
@@ -130,7 +148,7 @@ export function ControllerView({
 }: ControllerViewProps) {
   const selectedMinutes = CLOCK_MINUTE_CHOICES.includes(state.clockSecondsRemaining / 60)
     ? state.clockSecondsRemaining / 60
-    : 3;
+    : 0;
   const [isMatchConfigModalOpen, setMatchConfigModalOpen] = useState(false);
   const [isEditValuesModalOpen, setEditValuesModalOpen] = useState(false);
   const [isNewMatchConfirmOpen, setNewMatchConfirmOpen] = useState(false);
@@ -147,6 +165,16 @@ export function ControllerView({
   const [editHomeSetsWon, setEditHomeSetsWon] = useState(String(state.homeSetsWon));
   const [editVisitorSetsWon, setEditVisitorSetsWon] = useState(String(state.visitorSetsWon));
   const [isSwapped, setIsSwapped] = useState(false);
+  const [timeOfDayLabel, setTimeOfDayLabel] = useState(() => formatHourMinute(new Date()));
+  const [isManualClockModalOpen, setManualClockModalOpen] = useState(false);
+  const [manualClockDigits, setManualClockDigits] = useState("");
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setTimeOfDayLabel(formatHourMinute(new Date()));
+    }, 15000);
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (isMatchConfigModalOpen || isEditValuesModalOpen) return;
@@ -248,6 +276,29 @@ export function ControllerView({
     setNewMatchConfirmOpen(false);
   };
 
+  const openManualClockModal = () => {
+    setManualClockDigits("");
+    setManualClockModalOpen(true);
+  };
+
+  const closeManualClockModal = () => {
+    setManualClockModalOpen(false);
+    setManualClockDigits("");
+  };
+
+  const appendManualClockDigit = (digit: string) => {
+    setManualClockDigits((previous) => (previous.length >= 4 ? previous : `${previous}${digit}`));
+  };
+
+  const clearManualClockValue = () => {
+    setManualClockDigits("");
+  };
+
+  const confirmManualClockValue = () => {
+    onSetClock(parseManualClockDigitsToSeconds(manualClockDigits));
+    closeManualClockModal();
+  };
+
   const saveEditValues = () => {
     const homeScore = Number.parseInt(editHomeScore, 10);
     const visitorScore = Number.parseInt(editVisitorScore, 10);
@@ -302,6 +353,7 @@ export function ControllerView({
     <main className="tablet-controller-page">
       <header className="tablet-top-row">
         <p className="set-number-chip">Set #: {state.setNumber}</p>
+        <p className="time-of-day-chip">{timeOfDayLabel}</p>
       </header>
 
       <section className="tablet-main-grid">
@@ -313,7 +365,6 @@ export function ControllerView({
           timeoutsTaken={leftTeam.timeoutsTaken}
           maxTimeoutsPerTeam={state.maxTimeoutsPerTeam}
           maxSetsWon={state.maxSetsWon}
-          timeoutDurationSeconds={state.timeoutDurationSeconds}
           side={leftTeam.side}
           onChangeScore={onChangeScore}
           onTakeTimeout={onTakeTimeout}
@@ -327,7 +378,6 @@ export function ControllerView({
           timeoutsTaken={rightTeam.timeoutsTaken}
           maxTimeoutsPerTeam={state.maxTimeoutsPerTeam}
           maxSetsWon={state.maxSetsWon}
-          timeoutDurationSeconds={state.timeoutDurationSeconds}
           side={rightTeam.side}
           onChangeScore={onChangeScore}
           onTakeTimeout={onTakeTimeout}
@@ -335,24 +385,31 @@ export function ControllerView({
         />
 
         <section className="clock-panel">
+          <p className="clock-title">Timer</p>
           <p className="clock-readout">{formatClock(state.clockSecondsRemaining)}</p>
           <div className="clock-controls-grid">
             <div className="clock-set-column">
-              <button className="clock-set-label">Set Clock</button>
               <select
                 value={selectedMinutes}
                 onChange={(event) => onSetClock(Number(event.target.value) * 60)}
               >
                 {CLOCK_MINUTE_CHOICES.map((minutes) => (
                   <option key={minutes} value={minutes}>
-                    {minutes} min
+                    Quick Set {minutes}:00
                   </option>
                 ))}
               </select>
+              <button className="clock-set-label" type="button" onClick={openManualClockModal}>
+                Manual Set
+              </button>
             </div>
             <div className="clock-run-column">
-              <button onClick={onStartClock}>Start</button>
-              <button onClick={onStopClock}>Stop</button>
+              <button
+                className={state.clockRunning ? "clock-toggle-button clock-toggle-running" : "clock-toggle-button"}
+                onClick={state.clockRunning ? onStopClock : onStartClock}
+              >
+                {state.clockRunning ? "Stop Timer" : "Start Timer"}
+              </button>
             </div>
           </div>
         </section>
@@ -369,7 +426,7 @@ export function ControllerView({
           Start a new match
         </button>
         <button className="controller-secondary-button" type="button" onClick={openMatchConfigModal}>
-          Match Configuration
+          Configure the match
         </button>
       </section>
 
@@ -410,7 +467,7 @@ export function ControllerView({
               </select>
             </label>
             <label className="modal-label">
-              Max sets won
+              Maximum number of sets
               <select
                 value={maxSetsWonInput}
                 onChange={(event) => setMaxSetsWonInput(event.target.value)}
@@ -428,6 +485,35 @@ export function ControllerView({
               </button>
               <button type="button" onClick={saveMatchConfiguration}>
                 Save
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      {isManualClockModalOpen ? (
+        <section className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Manual clock set">
+          <div className="modal-card manual-clock-modal">
+            <h2>Manual Set</h2>
+            <p className="manual-clock-display">{formatManualClockFromDigits(manualClockDigits)}</p>
+            <div className="manual-keypad-grid">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+                <button key={digit} type="button" onClick={() => appendManualClockDigit(String(digit))}>
+                  {digit}
+                </button>
+              ))}
+              <button type="button" onClick={clearManualClockValue}>
+                Clear
+              </button>
+              <button type="button" onClick={() => appendManualClockDigit("0")}>
+                0
+              </button>
+            </div>
+            <div className="modal-actions manual-clock-actions">
+              <button type="button" className="modal-secondary" onClick={closeManualClockModal}>
+                Cancel
+              </button>
+              <button type="button" onClick={confirmManualClockValue}>
+                Okay
               </button>
             </div>
           </div>
