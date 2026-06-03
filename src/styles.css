@@ -79,6 +79,12 @@ a {
   align-items: center;
 }
 
+.tv-overlay-rounded-box {
+  border: 2px solid rgb(220 228 238 / 90%);
+  border-radius: 22px;
+  background: rgb(8 18 29 / 28%);
+}
+
 .tv-italic-data {
   font-style: italic;
 }
@@ -93,6 +99,7 @@ a {
   bottom: 44px;
   width: 50%;
   text-align: center;
+  padding: 0.25rem 1.2rem;
 }
 
 .tv-score-history p {
@@ -113,6 +120,41 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 3.75rem;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.tv-team-stats-box {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem;
+  padding: 0.25rem 1rem;
+  font-family: "Times New Roman", Times, serif;
+  color: #f8f9fb;
+  border: 2px solid #ffd400;
+  border-radius: 22px;
+}
+
+.tv-team-stats-home {
+  background: rgb(20 58 76 / 75%);
+}
+
+.tv-team-stats-visitor {
+  background: rgb(135 204 197 / 75%);
+}
+
+.tv-team-stats-row {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1ch;
+  padding-right: 1ch;
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+.tv-team-stats-value {
   font-style: italic;
   font-weight: 700;
 }

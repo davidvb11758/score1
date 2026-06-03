@@ -86,8 +86,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         lineHeight: 1
       },
       teamOneTimeoutLabel: {
-        x: 310,
-        y: 610,
+        x: 52,
+        y: 668,
         width: 300,
         height: 50,
         fontSize: 48,
@@ -96,8 +96,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamOneTimeoutValue: {
-        x: 450,
-        y: 670,
+        x: 334,
+        y: 668,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -106,8 +106,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700
       },
       teamOneSetsWonLabel: {
-        x: 310,
-        y: 670,
+        x: 52,
+        y: 738,
         width: 300,
         height: 50,
         fontSize: 48,
@@ -116,8 +116,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamOneSetsWonValue: {
-        x: 450,
-        y: 770,
+        x: 334,
+        y: 738,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -138,8 +138,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         lineHeight: 1
       },
       teamTwoTimeoutLabel: {
-        x: 1220,
-        y: 610,
+        x: 1394,
+        y: 668,
         width: 300,
         height: 50,
         fontSize: 48,
@@ -148,8 +148,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamTwoTimeoutValue: {
-        x: 1800,
-        y: 670,
+        x: 1676,
+        y: 668,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -158,8 +158,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 700
       },
       teamTwoSetsWonLabel: {
-        x: 1220,
-        y: 670,
+        x: 1394,
+        y: 738,
         width: 300,
         height: 50,
         fontSize: 48,
@@ -168,8 +168,8 @@ const DISPLAY_LAYOUTS: Record<string, DisplayLayout> = {
         fontWeight: 600
       },
       teamTwoSetsWonValue: {
-        x: 1800,
-        y: 770,
+        x: 1676,
+        y: 738,
         width: 110,
         height: 50,
         fontSize: 48,
@@ -405,6 +405,10 @@ function formatClock(totalSeconds: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function formatStatsCount(value: number) {
+  return value > 0 ? String(value) : "";
+}
+
 function toElementStyle(config: ElementStyleConfig): CSSProperties {
   return {
     left: `${config.x}px`,
@@ -424,11 +428,43 @@ function toElementStyle(config: ElementStyleConfig): CSSProperties {
   };
 }
 
+function toTeamStatsBoxStyle(
+  teamScore: ElementStyleConfig,
+  timeoutLabel: ElementStyleConfig,
+  setsWonLabel: ElementStyleConfig,
+): CSSProperties {
+  const horizontalInset = Math.max(12, Math.round(teamScore.width * 0.03));
+  const left = teamScore.x + horizontalInset;
+  const top = Math.min(timeoutLabel.y, setsWonLabel.y) - 8;
+  const bottom = Math.max(timeoutLabel.y + timeoutLabel.height, setsWonLabel.y + setsWonLabel.height) + 8;
+  const width = Math.max(220, teamScore.width - horizontalInset * 2);
+
+  return {
+    position: "absolute",
+    left: `${left}px`,
+    top: `${top}px`,
+    width: `${width}px`,
+    maxWidth: `${width}px`,
+    height: `${bottom - top}px`,
+    boxSizing: "border-box"
+  };
+}
+
 export function DisplayView({ state, connected }: DisplayViewProps) {
   const query = new URLSearchParams(window.location.search);
   const sport = (query.get("sport") ?? "volleyball").toLowerCase();
   const layout = DISPLAY_LAYOUTS[sport] ?? DISPLAY_LAYOUTS.volleyball;
   const historyBySet = new Map(state.setHistory.map((entry) => [entry.setNumber, entry]));
+  const homeTeamStatsStyle = toTeamStatsBoxStyle(
+    layout.elements.teamOneScore,
+    layout.elements.teamOneTimeoutLabel,
+    layout.elements.teamOneSetsWonLabel,
+  );
+  const visitorTeamStatsStyle = toTeamStatsBoxStyle(
+    layout.elements.teamTwoScore,
+    layout.elements.teamTwoTimeoutLabel,
+    layout.elements.teamTwoSetsWonLabel,
+  );
 
   return (
     <main className="tv-display-root">
@@ -448,22 +484,26 @@ export function DisplayView({ state, connected }: DisplayViewProps) {
             <p className="tv-overlay-text tv-centered-value tv-italic-data" style={toElementStyle(layout.elements.teamTwoScore)}>
               {state.visitorScore}
             </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneTimeoutLabel)} />
-            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamOneTimeoutValue)}>
-              {state.homeTimeoutsTaken > 0 ? state.homeTimeoutsTaken : ""}
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoTimeoutLabel)} />
-            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamTwoTimeoutValue)}>
-              {state.visitorTimeoutsTaken > 0 ? state.visitorTimeoutsTaken : ""}
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamOneSetsWonLabel)} />
-            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamOneSetsWonValue)}>
-              {state.homeSetsWon > 0 ? state.homeSetsWon : ""}
-            </p>
-            <p className="tv-overlay-text" style={toElementStyle(layout.elements.teamTwoSetsWonLabel)} />
-            <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.teamTwoSetsWonValue)}>
-              {state.visitorSetsWon > 0 ? state.visitorSetsWon : ""}
-            </p>
+            <section className="tv-team-stats-box tv-team-stats-home" style={homeTeamStatsStyle}>
+              <p className="tv-team-stats-row">
+                <span>T/O taken</span>
+                <span className="tv-team-stats-value">{formatStatsCount(state.homeTimeoutsTaken)}</span>
+              </p>
+              <p className="tv-team-stats-row">
+                <span>Sets won</span>
+                <span className="tv-team-stats-value">{formatStatsCount(state.homeSetsWon)}</span>
+              </p>
+            </section>
+            <section className="tv-team-stats-box tv-team-stats-visitor" style={visitorTeamStatsStyle}>
+              <p className="tv-team-stats-row">
+                <span>T/O taken</span>
+                <span className="tv-team-stats-value">{formatStatsCount(state.visitorTimeoutsTaken)}</span>
+              </p>
+              <p className="tv-team-stats-row">
+                <span>Sets won</span>
+                <span className="tv-team-stats-value">{formatStatsCount(state.visitorSetsWon)}</span>
+              </p>
+            </section>
             <p className="tv-overlay-text" style={toElementStyle(layout.elements.setLabel)} />
             <p className="tv-overlay-text tv-italic-data" style={toElementStyle(layout.elements.setValue)}>
               {state.setNumber}
