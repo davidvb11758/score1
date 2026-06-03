@@ -146,9 +146,6 @@ export function ControllerView({
   onStartNewMatch,
   onSetCurrentSetValues
 }: ControllerViewProps) {
-  const selectedMinutes = CLOCK_MINUTE_CHOICES.includes(state.clockSecondsRemaining / 60)
-    ? state.clockSecondsRemaining / 60
-    : 0;
   const [isMatchConfigModalOpen, setMatchConfigModalOpen] = useState(false);
   const [isEditValuesModalOpen, setEditValuesModalOpen] = useState(false);
   const [isNewMatchConfirmOpen, setNewMatchConfirmOpen] = useState(false);
@@ -168,6 +165,7 @@ export function ControllerView({
   const [timeOfDayLabel, setTimeOfDayLabel] = useState(() => formatHourMinute(new Date()));
   const [isManualClockModalOpen, setManualClockModalOpen] = useState(false);
   const [manualClockDigits, setManualClockDigits] = useState("");
+  const [quickSetSelection, setQuickSetSelection] = useState("");
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -299,6 +297,12 @@ export function ControllerView({
     closeManualClockModal();
   };
 
+  const applyQuickSet = (minutes: number) => {
+    onSetClock(minutes * 60);
+    // Reset to placeholder so re-selecting the same value still applies.
+    setQuickSetSelection("");
+  };
+
   const saveEditValues = () => {
     const homeScore = Number.parseInt(editHomeScore, 10);
     const visitorScore = Number.parseInt(editVisitorScore, 10);
@@ -390,12 +394,17 @@ export function ControllerView({
           <div className="clock-controls-grid">
             <div className="clock-set-column">
               <select
-                value={selectedMinutes}
-                onChange={(event) => onSetClock(Number(event.target.value) * 60)}
+                value={quickSetSelection}
+                onChange={(event) => {
+                  const selectedMinutes = Number(event.target.value);
+                  if (!Number.isFinite(selectedMinutes)) return;
+                  applyQuickSet(selectedMinutes);
+                }}
               >
+                <option value="">Quick Set</option>
                 {CLOCK_MINUTE_CHOICES.map((minutes) => (
                   <option key={minutes} value={minutes}>
-                    Quick Set {minutes}:00
+                    {minutes}:00
                   </option>
                 ))}
               </select>

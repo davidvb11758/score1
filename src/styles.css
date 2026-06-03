@@ -405,6 +405,8 @@ button:active {
 
 .clock-set-column select {
   padding: 0 0.75rem;
+  text-align: center;
+  text-align-last: center;
 }
 
 .clock-set-column select option {
